@@ -1,13 +1,13 @@
 [project]
-name = "forfest"
+name = "kvallskort"
 version = "1.0.0"
-description = "Förfest — svenskt förfest-spel med textkort"
+description = "Kvällskort — svenskt partykortspel med textkort"
 requires-python = ">=3.11"
 dependencies = ["flet==0.85.1"]
 
 [tool.flet]
 org = "com.linneaegner"
-product = "Förfest"
+product = "Kvällskort"
 
 [tool.flet.web]
 route_url_strategy = "hash"

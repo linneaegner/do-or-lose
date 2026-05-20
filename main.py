@@ -1,4 +1,4 @@
-"""Förfest — party card game for friends before going out."""
+"""Kvällskort — party card game for friends before going out."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def main(page: ft.Page) -> None:
     selected_categories: set[Category] = set(Category)
     name_buffer = ""
 
-    page.title = "Förfest"
+    page.title = "Kvällskort"
     page.window.width = WINDOW_WIDTH
     page.window.height = WINDOW_HEIGHT
     page.window.resizable = False
@@ -99,7 +99,7 @@ def main(page: ft.Page) -> None:
         player_count.color = COLOR_SUCCESS if can_start else COLOR_MUTED
 
         lobby_hint.value = (
-            "Alla är med! Tryck Starta förfest."
+            "Alla är med! Tryck Starta spelet."
             if can_start
             else f"Lägg till minst {MIN_PLAYERS} personer."
         )
@@ -181,8 +181,8 @@ def main(page: ft.Page) -> None:
         begin_turn()
         refresh()
 
-    start_btn = primary_button("Starta förfest", start_game, disabled=True, width=CONTENT_WIDTH)
-    lobby_header = page_header("Förfest", "100 kort · förfest med gänget")
+    start_btn = primary_button("Starta spelet", start_game, disabled=True, width=CONTENT_WIDTH)
+    lobby_header = page_header("Kvällskort", "100 kort · kvällen med gänget")
     lobby_surface = surface(
         ft.Row(
             [txt_name, secondary_button("Lägg till", add_player, width=110)],

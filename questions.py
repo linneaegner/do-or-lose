@@ -1,4 +1,4 @@
-"""Förfest-frågor och kortlek för party-spelet."""
+"""Frågor och kortlek för Kvällskort."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ class Question:
     category: Category
 
 
-# 100 förfest-kort — blandning av sanning, utmaning, drick, rösta & vild
+# 100 kort — blandning av sanning, utmaning, drick, rösta & vild
 _QUESTION_DATA: list[tuple[Category, str]] = [
     # Sanning (1–20)
     (Category.TRUTH, "Vad var din mest pinsamma dansrörelse på en fest?"),
@@ -49,7 +49,7 @@ _QUESTION_DATA: list[tuple[Category, str]] = [
     (Category.TRUTH, "När var du senast riktigt starstruck?"),
     (Category.TRUTH, "Vad är din guilty pleasure-snack innan utgång?"),
     (Category.TRUTH, "Vem här känner du dig minst förberedd inför att träffa IRL?"),
-    (Category.TRUTH, "Vad är det modigaste du gjort på en förfest?"),
+    (Category.TRUTH, "Vad är det modigaste du gjort en kväll innan ni gick ut?"),
     (Category.TRUTH, "Vilken trend följde du som du ångrar?"),
     (Category.TRUTH, "Vad skulle ditt dröm-scenario för kvällen vara?"),
     (Category.TRUTH, "Vem här tror du kommer hamna sist hemma — och varför?"),
@@ -130,7 +130,7 @@ _QUESTION_DATA: list[tuple[Category, str]] = [
     (Category.VOTE, "Rösta: vem kommer du vilja höra av dig imorgon bitti?"),
     # Vild (84–100)
     (Category.WILD, "Alla byter plats — sitt där någon annan satt."),
-    (Category.WILD, "Skapa en ny regel för resten av förfesten (max 1 mening)."),
+    (Category.WILD, "Skapa en ny regel för resten av kvällen (max 1 mening)."),
     (Category.WILD, "Nästa kort gäller dubbelt för den som drog det."),
     (Category.WILD, "Gruppen väljer en 'måltavla' — alla pekar på den vid nästa rösta-kort."),
     (Category.WILD, "Byt telefon med någon i 1 minut (inga lösenord)."),
@@ -143,7 +143,7 @@ _QUESTION_DATA: list[tuple[Category, str]] = [
     (Category.WILD, "Gruppen får ställa EN fråga till dig — inget filter."),
     (Category.WILD, "Alla som har jobb imorgon — visa reaktion med emoji-hand."),
     (Category.WILD, "Planera er exit-strategi till klubben/bar på 30 sek."),
-    (Category.WILD, "Ta en gruppbild som blir er 'förfest-official'."),
+    (Category.WILD, "Ta en gruppbild som blir er officiella kvällsbild."),
     (Category.WILD, "Den som drog kortet blir spelledare nästa 3 kort."),
     (Category.WILD, "Alla skålar för något de är tacksamma för idag."),
 ]

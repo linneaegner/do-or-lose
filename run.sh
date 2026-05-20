@@ -11,6 +11,6 @@ if lsof -ti:"$PORT" >/dev/null 2>&1; then
   sleep 1
 fi
 
-echo "Startar Förfest på http://127.0.0.1:$PORT"
+echo "Startar Kvällskort på http://127.0.0.1:$PORT"
 echo "Öppna den adressen i webbläsaren (inte bara Simple Browser om det strular)."
 flet run main.py -w -p "$PORT" --host 127.0.0.1

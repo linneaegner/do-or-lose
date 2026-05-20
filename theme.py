@@ -1,4 +1,4 @@
-"""Reusable Flet UI primitives for Förfest-spelet."""
+"""Reusable Flet UI primitives for Kvällskort."""
 
 from __future__ import annotations
 

@@ -1,12 +1,12 @@
 <div align="center">
 
-# Förfest
+# Kvällskort
 
 **Desktop party card game · Python & Flet**
 
 *Programming 2 · Göteborgs universitet · 2023 · Solo project · refaktorerat 2026*
 
-**[▶ Spela i webbläsaren](https://linneaegner.github.io/forfest/)**
+**[▶ Spela i webbläsaren](https://linneaegner.github.io/do-or-lose/)**
 
 [Features](#features) · [Spela](#spela) · [Quick start](#quick-start) · [Architecture](#architecture) · [Context](#context)
 
@@ -16,7 +16,7 @@
 
 ## Overview
 
-**Förfest** is a Swedish turn-based pre-party card game for friends: add players in a lobby, pick categories, draw text challenge cards, and pass turns until the deck runs out. Built with **Python 3.11+** and **Flet 0.85** as coursework for *Programming 2* at the University of Gothenburg (2023), refactored in 2026 with a text-card deck, category filters, and pytest.
+**Kvällskort** is a Swedish turn-based party card game for friends: add players in a lobby, pick categories, draw text challenge cards, and pass turns until the deck runs out. Built with **Python 3.11+** and **Flet 0.85** as coursework for *Programming 2* at the University of Gothenburg (2023), refactored in 2026 with a text-card deck, category filters, pytest, and a playable web version on GitHub Pages.
 
 ## Features
 
@@ -27,17 +27,21 @@
 | **Game** | Turn order, tap-to-draw cards, deck counter, reshuffle when empty |
 | **Cards** | 100 Swedish text prompts across five categories |
 | **UI** | Dark pre-party theme, responsive layout, Swedish copy |
+| **Web** | Play in the browser — no install; one shared screen |
 
 ## Spela
 
-**Ingen installation** — öppna i webbläsaren (mobil eller laptop). Ett kortspel för **en delad skärm**: lägg in alla spelare, välj kategorier, dra kort i turordning.
+**Ingen installation** — öppna länken i webbläsaren (mobil eller laptop). Ett kortspel för **en delad skärm**: lägg in alla spelare, välj kategorier, dra kort i turordning.
+
+**https://linneaegner.github.io/do-or-lose/**
 
 | | |
 |---|---|
-| **Webb** | **https://linneaegner.github.io/forfest/** |
-| **Repo heter fortfarande `do-or-lose`?** | https://linneaegner.github.io/do-or-lose/ |
+| **Första besök** | Räkna med ~10–20 s laddning (Python körs i webbläsaren via Pyodide) |
+| **Uppdateringar** | Varje push till `main` bygger om och publicerar automatiskt — samma länk, ingen ny nedladdning |
+| **Redan öppen sida?** | Ladda om (F5 / dra-ner-refresh) efter att du pushat ny kod |
 
-> Första laddningen kan ta ~10–20 s (Python körs i webbläsaren). Kräver att [GitHub Pages](https://github.com/linneaegner/forfest/settings/pages) är aktiverat med **GitHub Actions** som källa — sker automatiskt efter push till `main`.
+GitHub Pages måste ha **GitHub Actions** som källa ([Settings → Pages](https://github.com/linneaegner/do-or-lose/settings/pages)).
 
 ## Screenshots
 
@@ -52,8 +56,8 @@
 **Requirements:** Python 3.11+, macOS or Linux (desktop tested on macOS). For playing with friends, use the [web link](#spela) instead.
 
 ```bash
-git clone https://github.com/linneaegner/forfest.git
-cd forfest
+git clone https://github.com/linneaegner/do-or-lose.git
+cd do-or-lose
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -88,6 +92,8 @@ flowchart LR
   G --> QuestionDeck
   G --> Person
   QuestionDeck --> QUESTIONS["100 text cards"]
+  push["push to main"] --> gha[GitHub Actions]
+  gha --> pages[GitHub Pages]
 ```
 
 | File | Role |
@@ -98,12 +104,12 @@ flowchart LR
 | `theme.py` | Shared UI components and layout |
 | `constants.py` | Design tokens and game rules |
 | `run.sh` | Convenience launcher (local web mode on `127.0.0.1:8550`) |
-| `.github/workflows/build-deploy.yml` | Builds and deploys the playable web version to GitHub Pages |
+| `.github/workflows/build-deploy.yml` | Builds and deploys the web version on every push to `main` |
 
 ## Context
 
 - **Original (2023):** University coursework — OOP desktop app with Flet instead of console I/O. Early version used image cards and Swedish UI.
-- **This repo (2026):** Refactored **Förfest** — text-card deck, category filters, updated Flet 0.85 API, pytest. Public on GitHub; not listed on [linneaegner.se](https://linneaegner.se).
+- **This repo (2026):** Refactored **Kvällskort** — text-card deck, category filters, Flet 0.85, pytest, GitHub Pages deploy. Public on GitHub; not listed on [linneaegner.se](https://linneaegner.se).
 
 ## License
 
