@@ -1,23 +1,23 @@
 # Portfolio copy
 
-Ready for Phase 5 (`portfolio-site`). UI stays Swedish; portfolio text is English.
+For `portfolio-site` (build card + `/projects/do-or-lose`).
 
-## Landing card — impact (one line)
+## Landing card — impact
 
-Desktop turn-based party game — OOP player model, Flet multi-view UI, local challenge cards.
+Desktop turn-based party game — OOP player model, Flet multi-view routing, local assets.
 
-## Project page — About (paragraph)
+## About — paragraph
 
-For **Programming 2** at Uppsala University (2023) I needed a desktop app with object-oriented design and real navigation, not console output. I built **DO or LOSE**: players add names in the lobby, take turns flipping challenge cards, earn points toward 100, and reach a winner screen. A `Person` class holds each player's state; Flet routes separate lobby, game, and end views; challenge cards load from local PNGs instead of external hotlinks. Solo coursework — framed as a social score-tracking app for portfolio use.
+For **Programming 2** at Uppsala University (2023) I built a desktop app with object-oriented design and routed views instead of console output. **DO or LOSE** lets friends join a lobby, take turns drawing challenge cards, and race to 100 points. I modeled players in a `Person` class, wired Flet navigation across lobby, game, and winner screens, and replaced fragile image hotlinks with bundled assets. Solo coursework, later refactored for portfolio presentation.
 
-## Project page — bullets
+## Bullets
 
-- Flet desktop app with `/`, `/game`, and `/end` routing
-- `Person` model for name, current card, and score (add / undo)
-- Turn loop with progress ring and random local challenge cards
-- Python 3.11+, Flet 0.85, pytest for scoring logic
+- Flet desktop app with `/`, `/game`, and `/end` routing (Flet 0.85)
+- `Person` model for name, card state, and scoring with undo
+- Turn loop, progress ring, and local challenge card images
+- Python 3.11+, pytest for scoring logic
 
-## Meta (for `projects[]` in App.tsx)
+## Meta
 
 | Field | Value |
 |-------|--------|
@@ -30,5 +30,3 @@ For **Programming 2** at Uppsala University (2023) I needed a desktop app with o
 | group | Solo |
 | tools | Python; Flet |
 | GitHub | https://github.com/linneaegner/do-or-lose |
-
-No live demo link unless you deploy later.

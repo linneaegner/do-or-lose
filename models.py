@@ -12,7 +12,7 @@ class Person:
         self.points = points
 
     def __str__(self) -> str:
-        return f"{self.name}: {self.points} poäng"
+        return f"{self.name}: {self.points} pts"
 
     def get_name(self) -> str:
         return self.name

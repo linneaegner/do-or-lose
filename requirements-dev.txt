@@ -1,1 +1,2 @@
-flet==0.85.1
+-r requirements.txt
+pytest>=8.0.0

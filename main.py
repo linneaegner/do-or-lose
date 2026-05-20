@@ -5,11 +5,12 @@ import flet as ft
 from constants import (
     CARD_IMAGES,
     COLOR_ACCENT,
-    COLOR_HINT,
+    COLOR_CARD_FACE,
     COLOR_MUTED,
+    COLOR_ON_PRIMARY,
     COLOR_PRIMARY,
     COLOR_PROGRESS_BG,
-    FONT_FAMILY,
+    COLOR_SUCCESS,
     MAX_POINTS,
     MIN_PLAYERS,
     POINTS_PER_SUCCESS,
@@ -17,6 +18,18 @@ from constants import (
     WINDOW_WIDTH,
 )
 from models import Person
+from theme import (
+    challenge_card_placeholder,
+    icon_bar,
+    label,
+    name_field,
+    page_header,
+    player_chip,
+    primary_button,
+    screen,
+    secondary_button,
+    surface,
+)
 
 player_list: list[Person] = []
 turn_index = 0
@@ -25,18 +38,19 @@ game_started = False
 
 
 def main(page: ft.Page) -> None:
+    global turn_index, game_started, current_player
+
     page.title = "DO or LOSE"
     page.window.width = WINDOW_WIDTH
     page.window.height = WINDOW_HEIGHT
     page.window.resizable = False
-    page.window.title_bar_hidden = True
-
-    def bold_text(content: str, **kwargs) -> ft.Text:
-        return ft.Text(content, font_family=FONT_FAMILY, weight="bold", **kwargs)
+    page.theme_mode = ft.ThemeMode.LIGHT
+    page.bgcolor = COLOR_PRIMARY
+    page.padding = 0
 
     def card_alt_text(card_path) -> str:
-        label = card_path.stem.replace("-", " ").replace("_", " ")
-        return f"Challenge card: {label}"
+        card_label = card_path.stem.replace("-", " ").replace("_", " ")
+        return f"Challenge card: {card_label}"
 
     def get_random_card() -> ft.Container:
         card_path = random.choice(CARD_IMAGES)
@@ -44,19 +58,17 @@ def main(page: ft.Page) -> None:
             content=ft.Image(
                 src=str(card_path),
                 alt=card_alt_text(card_path),
-                border_radius=8,
+                fit=ft.BoxFit.COVER,
+                border_radius=12,
             ),
-            width=300,
-            height=300,
-            margin=8,
+            width=280,
+            height=280,
+            border_radius=12,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
         )
 
     def update_points_text(points: int) -> ft.Text:
-        return bold_text(
-            f"{points} / {MAX_POINTS} poäng",
-            color=COLOR_PRIMARY,
-            size=16,
-        )
+        return label(f"{points} / {MAX_POINTS} pts", size=15, weight=ft.FontWeight.W_600)
 
     def update_progress_ring() -> None:
         if current_player is None:
@@ -70,11 +82,13 @@ def main(page: ft.Page) -> None:
         global current_player
         current_player = player
         card.content = blank_card
-        player_name.content = bold_text(
-            player.get_name(),
-            color=COLOR_PRIMARY,
-            size=36,
+        player_name.content = label(
+            f"{player.get_name()}'s turn",
+            size=22,
+            weight=ft.FontWeight.W_700,
+            text_align=ft.TextAlign.CENTER,
         )
+        turn_badge.value = f"Player {turn_index + 1} of {len(player_list)}"
         update_progress_ring()
 
     def animate(_: ft.ControlEvent) -> None:
@@ -92,22 +106,24 @@ def main(page: ft.Page) -> None:
         page.update()
 
     def update_buttons() -> None:
-        if game_started:
-            buttons.content = two_btn.content
-            if user_progress_container not in game.controls:
-                game.controls.append(user_progress_container)
-        else:
-            buttons.content = go_btn.content
+        buttons.content = two_btn if game_started else go_btn
+        if game_started and user_progress_container not in game_column.controls:
+            game_column.controls.insert(-1, user_progress_container)
         page.update()
+
+    def refresh_player_list() -> None:
+        name_view.controls = [player_chip(p.get_name()) for p in player_list]
 
     def update_lobby_state() -> None:
         can_start = len(player_list) >= MIN_PLAYERS
-        start_elevated.disabled = not can_start
+        start_btn.disabled = not can_start
         lobby_hint.value = (
-            ""
+            "Ready to play — press Start when everyone is in."
             if can_start
             else f"Add at least {MIN_PLAYERS} players to start."
         )
+        lobby_hint.color = COLOR_SUCCESS if can_start else COLOR_MUTED
+        refresh_player_list()
         page.update()
 
     def add_player(_: ft.ControlEvent) -> None:
@@ -115,14 +131,21 @@ def main(page: ft.Page) -> None:
         if not name:
             return
         player_list.append(Person(name))
-        name_view.content.controls.append(
-            bold_text(name, color=COLOR_PRIMARY),
-        )
         txt_name.value = ""
         update_lobby_state()
 
+    def reset_game_state() -> None:
+        global turn_index, game_started, current_player
+        turn_index = 0
+        game_started = False
+        current_player = None
+        for player in player_list:
+            player.points = 0
+            player.current_card = None
+
     def start_game(_: ft.ControlEvent) -> None:
         if len(player_list) >= MIN_PLAYERS:
+            reset_game_state()
             navigate_to("/game")
 
     def next_round(_: ft.ControlEvent) -> None:
@@ -132,6 +155,8 @@ def main(page: ft.Page) -> None:
         if not game_started:
             game_started = True
             update_buttons()
+            set_active_player(player_list[0], card_blank)
+            return
 
         turn_index = (turn_index + 1) % len(player_list)
         set_active_player(player_list[turn_index], card_blank)
@@ -141,10 +166,7 @@ def main(page: ft.Page) -> None:
             return
         current_player.add_points(POINTS_PER_SUCCESS)
         if current_player.has_won(MAX_POINTS):
-            winner.content = ft.Text(
-                current_player.get_name(),
-                style=ft.TextThemeStyle.DISPLAY_MEDIUM,
-            )
+            winner_name.value = current_player.get_name()
             navigate_to("/end")
             return
         next_round(_)
@@ -162,11 +184,11 @@ def main(page: ft.Page) -> None:
 
     def route_change(_: ft.RouteChangeEvent | None = None) -> None:
         page.views.clear()
-        page.views.append(ft.View(route="/", controls=[start]))
+        page.views.append(ft.View(route="/", controls=[screen(lobby)]))
         if page.route == "/game":
-            page.views.append(ft.View(route="/game", controls=[game]))
+            page.views.append(ft.View(route="/game", controls=[screen(game_column)]))
         elif page.route == "/end":
-            page.views.append(ft.View(route="/end", controls=[end]))
+            page.views.append(ft.View(route="/end", controls=[screen(end_column)]))
         page.update()
 
     def view_pop(e: ft.ViewPopEvent) -> None:
@@ -180,280 +202,158 @@ def main(page: ft.Page) -> None:
     def navigate_to(route: str) -> None:
         page.navigate(route)
 
-    def on_hover(e: ft.ControlEvent) -> None:
-        e.control.content = bold_text(
-            "+ ADD MORE",
-            size=16,
-            color=COLOR_ACCENT if e.data == "true" else COLOR_MUTED,
-        )
-        e.control.update()
-
-    txt_name = ft.TextField(
-        hint_text="NAME",
-        hint_style=ft.TextStyle(
-            font_family=FONT_FAMILY,
-            weight="bold",
-            color=COLOR_HINT,
-        ),
-        border=ft.InputBorder.NONE,
-        filled=True,
-        cursor_color=COLOR_PRIMARY,
-        autofocus=True,
-        text_style=ft.TextStyle(
-            font_family=FONT_FAMILY,
-            weight="bold",
-            color=COLOR_PRIMARY,
-        ),
-    )
-
-    titel = ft.Container(
-        content=bold_text("DO or LOSE", color=ft.Colors.BLACK_87, size=52),
-        alignment=ft.Alignment(0, 0),
-        margin=20,
-    )
-
-    name_view = ft.Container(
-        ft.Column(),
-        alignment=ft.Alignment(0, 0),
-        height=200,
-        margin=10,
-    )
-
-    start_elevated = ft.ElevatedButton(
-        content=bold_text("START GAME", size=28, color=COLOR_ACCENT),
-        style=ft.ButtonStyle(
-            shape=ft.ContinuousRectangleBorder(radius=20),
-            bgcolor=COLOR_PRIMARY,
-        ),
-        width=240,
-        height=80,
-        disabled=True,
-        on_click=start_game,
-    )
-    start_btn = ft.Container(
-        content=start_elevated,
-        alignment=ft.Alignment(0, 0),
-    )
-    lobby_hint = ft.Text(
+    # —— Lobby ——
+    txt_name = name_field()
+    name_view = ft.Row(wrap=True, spacing=8, run_spacing=8)
+    lobby_hint = label(
         f"Add at least {MIN_PLAYERS} players to start.",
-        font_family=FONT_FAMILY,
-        size=12,
-        color=COLOR_HINT,
+        size=13,
+        color=COLOR_MUTED,
         text_align=ft.TextAlign.CENTER,
     )
+    start_btn = primary_button("Start game", start_game, disabled=True, width=320)
 
-    start = ft.Column(
+    lobby = ft.Column(
         controls=[
-            ft.Container(height=20),
-            titel,
-            ft.Container(height=20),
-            ft.Row(
-                controls=[
-                    ft.Container(
-                        content=txt_name,
-                        width=220,
-                        margin=ft.Margin(left=20),
-                        border_radius=25,
-                    ),
-                    ft.Container(
-                        content=ft.TextButton(
-                            content=bold_text("+ ADD MORE", size=16, color=COLOR_MUTED),
-                            style=ft.ButtonStyle(
-                                shape=ft.ContinuousRectangleBorder(radius=30)
-                            ),
-                            on_hover=on_hover,
-                            on_click=add_player,
-                        )
-                    ),
-                ],
+            page_header("DO or LOSE", "Turn-based party game · Programming 2, 2023"),
+            ft.Container(height=8),
+            surface(
+                ft.Row(
+                    [
+                        ft.Container(content=txt_name, expand=True),
+                        secondary_button("Add", add_player, width=88),
+                    ],
+                    spacing=10,
+                ),
+                label("Players", size=12, color=COLOR_MUTED, weight=ft.FontWeight.W_600),
+                name_view,
+                lobby_hint,
+                tight=True,
             ),
-            name_view,
-            lobby_hint,
+            ft.Container(height=4),
             start_btn,
-        ]
-    )
-
-    card_blank = ft.Container(
-        bold_text("TURN CARD", color=ft.Colors.WHITE_70, size=24),
-        width=300,
-        height=300,
-        margin=8,
-        border_radius=8,
-        bgcolor=ft.Colors.BLACK_87,
-        alignment=ft.Alignment(0, 0),
-        on_click=animate,
-    )
-
-    card_blank_prev = ft.Container(
-        bold_text("TURN CARD", color=ft.Colors.WHITE_70, size=24),
-        width=300,
-        height=300,
-        margin=8,
-        border_radius=8,
-        bgcolor=ft.Colors.BLACK_87,
-        alignment=ft.Alignment(0, 0),
-        on_click=animate_prev,
-    )
-
-    card_start = ft.Container(
-        ft.Text(
-            "regler",
-            style=ft.TextThemeStyle.DISPLAY_MEDIUM,
-            color=ft.Colors.WHITE_38,
-        ),
-        bgcolor=ft.Colors.BLACK_87,
-        height=300,
-        width=300,
-        margin=40,
-        border_radius=8,
-        alignment=ft.Alignment(0, 0),
-    )
-
-    go_btn = ft.Container(
-        content=ft.ElevatedButton(
-            content=bold_text("LET'S GO", size=28, color=COLOR_ACCENT),
-            style=ft.ButtonStyle(
-                shape=ft.ContinuousRectangleBorder(radius=20),
-                bgcolor=COLOR_PRIMARY,
-            ),
-            width=240,
-            height=80,
-            on_click=next_round,
-        ),
-        alignment=ft.Alignment(0, 0),
-    )
-
-    top_buttons = ft.Row(
-        [
-            ft.IconButton(icon=ft.Icons.ARROW_BACK_ROUNDED, on_click=prev_round),
-            ft.IconButton(
-                icon=ft.Icons.CLOSE_ROUNDED,
-                on_click=lambda _: navigate_to("/"),
-            ),
         ],
-        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=20,
+        expand=True,
     )
 
-    player_name = ft.Container(
-        content=bold_text("Är ni redo?", color=COLOR_PRIMARY, size=36),
-        alignment=ft.Alignment(0, 0),
+    # —— Game ——
+    card_blank = challenge_card_placeholder("Tap to draw", animate)
+    card_blank_prev = challenge_card_placeholder("Tap to reveal", animate_prev)
+    card_rules = ft.Container(
+        content=ft.Column(
+            [
+                label("How to play", size=20, color=COLOR_ON_PRIMARY, weight=ft.FontWeight.W_700),
+                label(
+                    "Draw a card, complete the challenge, then pass or score.",
+                    size=13,
+                    color=ft.Colors.with_opacity(0.75, COLOR_ON_PRIMARY),
+                    text_align=ft.TextAlign.CENTER,
+                ),
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=8,
+            alignment=ft.MainAxisAlignment.CENTER,
+        ),
+        width=280,
+        height=280,
+        bgcolor=COLOR_CARD_FACE,
+        border_radius=12,
+        alignment=ft.Alignment.CENTER,
+        padding=20,
     )
 
     card = ft.AnimatedSwitcher(
-        card_start,
+        card_rules,
         transition=ft.AnimatedSwitcherTransition.FADE,
-        duration=400,
-        width=400,
+        duration=350,
+        width=300,
+        height=300,
     )
 
-    buttons = ft.Container(
-        content=go_btn.content,
-        alignment=ft.Alignment(0, 0),
-        margin=24,
+    go_btn = primary_button("Begin round", next_round, width=300)
+    two_btn = ft.Row(
+        [
+            secondary_button("Skip", next_round, width=140),
+            primary_button("+15 pts", yes_clicked, width=140),
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=12,
     )
+    buttons = ft.Container(content=go_btn, alignment=ft.Alignment.CENTER)
 
-    button_style = ft.ButtonStyle(
-        shape=ft.ContinuousRectangleBorder(radius=20),
-        bgcolor=COLOR_PRIMARY,
+    player_name = ft.Container(
+        content=label("Ready?", size=22, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER),
+        alignment=ft.Alignment.CENTER,
     )
+    turn_badge = label("", size=12, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
 
-    two_btn = ft.Container(
-        content=ft.Row(
+    p_ring = ft.ProgressRing(width=22, height=22, stroke_width=5, color=COLOR_ACCENT)
+    points_text_container = ft.Container(content=update_points_text(0))
+    user_progress = surface(
+        ft.Row(
             [
-                ft.ElevatedButton(
-                    content=bold_text("I FAILED", size=16, color="#F1F1F1"),
-                    style=button_style,
-                    width=160,
-                    height=60,
-                    on_click=next_round,
-                ),
-                ft.ElevatedButton(
-                    content=bold_text("EASY PEASY", size=16, color=COLOR_ACCENT),
-                    style=button_style,
-                    width=160,
-                    height=60,
-                    on_click=yes_clicked,
+                p_ring,
+                ft.Column(
+                    [
+                        label("Score", size=11, color=COLOR_MUTED),
+                        points_text_container,
+                    ],
+                    spacing=2,
+                    tight=True,
                 ),
             ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=15,
+            spacing=14,
         ),
+        padding=12,
     )
+    user_progress_container = ft.Container(content=user_progress)
 
-    p_ring = ft.ProgressRing(width=20, height=20, stroke_width=6)
-    points_text_container = ft.Container(content=update_points_text(0))
-    user_progress = ft.Card(
-        content=ft.Container(
-            ft.Column(
-                [
-                    ft.Row(
-                        controls=[
-                            ft.Container(content=p_ring, padding=12),
-                            ft.Column(
-                                [
-                                    ft.Text(
-                                        "Dina poäng",
-                                        font_family=FONT_FAMILY,
-                                        color=ft.Colors.BLACK_87,
-                                        size=12,
-                                    ),
-                                    points_text_container,
-                                ],
-                                spacing=2,
-                            ),
-                        ]
-                    )
-                ],
-            ),
-            padding=8,
-            width=360,
-            height=60,
-            bgcolor=COLOR_PROGRESS_BG,
-            border_radius=8,
-        ),
-        elevation=4,
-        margin=ft.Margin(top=20),
-    )
-    user_progress_container = ft.Container(
-        content=user_progress,
-        margin=0,
-        padding=0,
-        alignment=ft.Alignment(0, 0),
-    )
-
-    game = ft.Column(
+    game_column = ft.Column(
         controls=[
-            ft.Container(height=8),
-            top_buttons,
+            icon_bar(
+                ft.IconButton(
+                    icon=ft.Icons.ARROW_BACK_ROUNDED,
+                    tooltip="Undo last point",
+                    on_click=prev_round,
+                ),
+                ft.IconButton(
+                    icon=ft.Icons.CLOSE_ROUNDED,
+                    tooltip="Exit to lobby",
+                    on_click=lambda _: navigate_to("/"),
+                ),
+            ),
             player_name,
-            card,
+            turn_badge,
+            ft.Container(card, alignment=ft.Alignment.CENTER),
             buttons,
         ],
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=14,
+        expand=True,
     )
 
-    x_button = ft.Container(
-        ft.IconButton(
-            icon=ft.Icons.CLOSE_ROUNDED,
-            on_click=lambda _: navigate_to("/"),
-        ),
-        alignment=ft.Alignment(1, 0),
-    )
+    # —— Winner ——
+    winner_name = label("", size=36, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER)
 
-    winner = ft.Container(
-        content=ft.Text(""),
-        alignment=ft.Alignment(0, 0),
-    )
-
-    end = ft.Column(
+    end_column = ft.Column(
         controls=[
-            x_button,
-            ft.Container(
-                ft.Text("Vinnare!!", style=ft.TextThemeStyle.DISPLAY_MEDIUM),
-                alignment=ft.Alignment(0, 0),
-                padding=40,
+            ft.Row(
+                [ft.Container(expand=True), ft.IconButton(icon=ft.Icons.CLOSE_ROUNDED, on_click=lambda _: navigate_to("/"))],
             ),
-            winner,
-        ]
+            ft.Container(expand=True),
+            ft.Icon(ft.Icons.EMOJI_EVENTS_ROUNDED, size=56, color=COLOR_ACCENT),
+            label("Winner", size=14, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER),
+            winner_name,
+            label(f"First to {MAX_POINTS} points takes it.", size=14, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER),
+            ft.Container(height=12),
+            primary_button("Back to lobby", lambda _: navigate_to("/"), width=280),
+            ft.Container(expand=True),
+        ],
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=10,
+        expand=True,
     )
 
     page.on_route_change = route_change
