@@ -4,6 +4,7 @@ import flet as ft
 
 from constants import (
     CARD_IMAGES,
+    card_image_src,
     COLOR_ACCENT,
     COLOR_CARD_FACE,
     COLOR_MUTED,
@@ -56,8 +57,8 @@ def main(page: ft.Page) -> None:
         card_path = random.choice(CARD_IMAGES)
         return ft.Container(
             content=ft.Image(
-                src=str(card_path),
-                alt=card_alt_text(card_path),
+                src=card_image_src(card_path),
+                semantics_label=card_alt_text(card_path),
                 fit=ft.BoxFit.COVER,
                 border_radius=12,
             ),
@@ -126,12 +127,27 @@ def main(page: ft.Page) -> None:
         refresh_player_list()
         page.update()
 
-    def add_player(_: ft.ControlEvent) -> None:
-        name = txt_name.value.strip()
+    name_input_buffer = ""
+
+    def on_name_change(e: ft.ControlEvent) -> None:
+        nonlocal name_input_buffer
+        value = getattr(e.control, "value", None) if e.control else None
+        name_input_buffer = (value or getattr(e, "data", None) or "").strip()
+
+    def add_player(e: ft.ControlEvent | None = None) -> None:
+        nonlocal name_input_buffer
+        if e is not None and isinstance(e.control, ft.TextField):
+            name = (e.control.value or name_input_buffer or "").strip()
+        else:
+            name = (txt_name.value or name_input_buffer or "").strip()
         if not name:
+            lobby_hint.value = "Enter a name, then press Add or Enter."
+            lobby_hint.color = COLOR_MUTED
+            page.update()
             return
         player_list.append(Person(name))
         txt_name.value = ""
+        name_input_buffer = ""
         update_lobby_state()
 
     def reset_game_state() -> None:
@@ -204,7 +220,10 @@ def main(page: ft.Page) -> None:
 
     # —— Lobby ——
     txt_name = name_field()
-    name_view = ft.Row(wrap=True, spacing=8, run_spacing=8)
+    txt_name.expand = True
+    txt_name.on_change = on_name_change
+    txt_name.on_submit = add_player
+    name_view = ft.Column(spacing=8, width=320)
     lobby_hint = label(
         f"Add at least {MIN_PLAYERS} players to start.",
         size=13,
@@ -220,10 +239,11 @@ def main(page: ft.Page) -> None:
             surface(
                 ft.Row(
                     [
-                        ft.Container(content=txt_name, expand=True),
+                        txt_name,
                         secondary_button("Add", add_player, width=88),
                     ],
                     spacing=10,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
                 label("Players", size=12, color=COLOR_MUTED, weight=ft.FontWeight.W_600),
                 name_view,
@@ -357,6 +377,7 @@ def main(page: ft.Page) -> None:
 
     page.on_route_change = route_change
     page.on_view_pop = view_pop
+    update_lobby_state()
     route_change()
 
 

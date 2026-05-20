@@ -3,6 +3,11 @@ from pathlib import Path
 ASSETS_DIR = Path(__file__).parent / "assets" / "cards"
 CARD_IMAGES = sorted(ASSETS_DIR.glob("*.png"))
 
+
+def card_image_src(card_path: Path) -> str:
+    """Path relative to Flet assets root (`-a assets` → `cards/…`)."""
+    return f"cards/{card_path.name}"
+
 MIN_PLAYERS = 2
 MAX_POINTS = 100
 POINTS_PER_SUCCESS = 15

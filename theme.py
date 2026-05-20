@@ -98,7 +98,7 @@ def primary_button(
 
 def secondary_button(text: str, on_click, *, width: int | None = None) -> ft.OutlinedButton:
     return ft.OutlinedButton(
-        content=label(text, size=14, color=COLOR_ACCENT, weight=ft.FontWeight.W_600),
+        content=text,
         on_click=on_click,
         width=width,
         style=ft.ButtonStyle(
