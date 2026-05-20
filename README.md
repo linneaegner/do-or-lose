@@ -39,8 +39,8 @@
 **Requirements:** Python 3.11+, macOS or Linux (desktop tested on macOS)
 
 ```bash
-git clone https://github.com/linneaegner/do-or-lose.git
-cd do-or-lose
+git clone https://github.com/linneaegner/forfest.git
+cd forfest
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
