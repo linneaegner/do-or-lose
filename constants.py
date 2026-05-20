@@ -1,14 +1,3 @@
-from pathlib import Path
-
-# Legacy card images (optional, not used in förfest mode)
-ASSETS_DIR = Path(__file__).parent / "assets" / "cards"
-CARD_IMAGES = sorted(ASSETS_DIR.glob("*.png"))
-
-
-def card_image_src(card_path: Path) -> str:
-    return f"cards/{card_path.name}"
-
-
 MIN_PLAYERS = 2
 
 # Design tokens — warm pre-party palette
