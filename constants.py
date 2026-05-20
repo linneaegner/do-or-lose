@@ -3,6 +3,7 @@ from pathlib import Path
 ASSETS_DIR = Path(__file__).parent / "assets" / "cards"
 CARD_IMAGES = sorted(ASSETS_DIR.glob("*.png"))
 
+MIN_PLAYERS = 2
 MAX_POINTS = 100
 POINTS_PER_SUCCESS = 15
 

@@ -11,6 +11,7 @@ from constants import (
     COLOR_PROGRESS_BG,
     FONT_FAMILY,
     MAX_POINTS,
+    MIN_PLAYERS,
     POINTS_PER_SUCCESS,
     WINDOW_HEIGHT,
     WINDOW_WIDTH,
@@ -33,10 +34,18 @@ def main(page: ft.Page) -> None:
     def bold_text(content: str, **kwargs) -> ft.Text:
         return ft.Text(content, font_family=FONT_FAMILY, weight="bold", **kwargs)
 
+    def card_alt_text(card_path) -> str:
+        label = card_path.stem.replace("-", " ").replace("_", " ")
+        return f"Challenge card: {label}"
+
     def get_random_card() -> ft.Container:
         card_path = random.choice(CARD_IMAGES)
         return ft.Container(
-            content=ft.Image(src=str(card_path), border_radius=8),
+            content=ft.Image(
+                src=str(card_path),
+                alt=card_alt_text(card_path),
+                border_radius=8,
+            ),
             width=300,
             height=300,
             margin=8,
@@ -91,6 +100,16 @@ def main(page: ft.Page) -> None:
             buttons.content = go_btn.content
         page.update()
 
+    def update_lobby_state() -> None:
+        can_start = len(player_list) >= MIN_PLAYERS
+        start_elevated.disabled = not can_start
+        lobby_hint.value = (
+            ""
+            if can_start
+            else f"Add at least {MIN_PLAYERS} players to start."
+        )
+        page.update()
+
     def add_player(_: ft.ControlEvent) -> None:
         name = txt_name.value.strip()
         if not name:
@@ -100,7 +119,11 @@ def main(page: ft.Page) -> None:
             bold_text(name, color=COLOR_PRIMARY),
         )
         txt_name.value = ""
-        page.update()
+        update_lobby_state()
+
+    def start_game(_: ft.ControlEvent) -> None:
+        if len(player_list) >= MIN_PLAYERS:
+            page.go("/game")
 
     def next_round(_: ft.ControlEvent) -> None:
         global turn_index, game_started
@@ -190,18 +213,27 @@ def main(page: ft.Page) -> None:
         margin=10,
     )
 
-    start_btn = ft.Container(
-        content=ft.ElevatedButton(
-            content=bold_text("START GAME", size=28, color=COLOR_ACCENT),
-            style=ft.ButtonStyle(
-                shape=ft.ContinuousRectangleBorder(radius=20),
-                bgcolor=COLOR_PRIMARY,
-            ),
-            width=240,
-            height=80,
-            on_click=lambda _: page.go("/game"),
+    start_elevated = ft.ElevatedButton(
+        content=bold_text("START GAME", size=28, color=COLOR_ACCENT),
+        style=ft.ButtonStyle(
+            shape=ft.ContinuousRectangleBorder(radius=20),
+            bgcolor=COLOR_PRIMARY,
         ),
+        width=240,
+        height=80,
+        disabled=True,
+        on_click=start_game,
+    )
+    start_btn = ft.Container(
+        content=start_elevated,
         alignment=ft.Alignment(0, 0),
+    )
+    lobby_hint = ft.Text(
+        f"Add at least {MIN_PLAYERS} players to start.",
+        font_family=FONT_FAMILY,
+        size=12,
+        color=COLOR_HINT,
+        text_align=ft.TextAlign.CENTER,
     )
 
     start = ft.Column(
@@ -230,6 +262,7 @@ def main(page: ft.Page) -> None:
                 ],
             ),
             name_view,
+            lobby_hint,
             start_btn,
         ]
     )
@@ -272,7 +305,7 @@ def main(page: ft.Page) -> None:
 
     go_btn = ft.Container(
         content=ft.ElevatedButton(
-            content=bold_text("LET´S GO", size=28, color=COLOR_ACCENT),
+            content=bold_text("LET'S GO", size=28, color=COLOR_ACCENT),
             style=ft.ButtonStyle(
                 shape=ft.ContinuousRectangleBorder(radius=20),
                 bgcolor=COLOR_PRIMARY,
