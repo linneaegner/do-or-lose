@@ -1,4 +1,4 @@
-"""Reusable Flet UI primitives for DO or LOSE."""
+"""Reusable Flet UI primitives for Förfest-spelet."""
 
 from __future__ import annotations
 
@@ -140,16 +140,50 @@ def player_chip(name: str) -> ft.Container:
     )
 
 
-def challenge_card_placeholder(text: str, on_click) -> ft.Container:
+def category_badge(category_key: str, emoji: str, label_text: str) -> ft.Container:
+    from constants import COLOR_CATEGORY
+
+    color = COLOR_CATEGORY.get(category_key, COLOR_ACCENT)
     return ft.Container(
-        content=label(text, size=18, color=COLOR_ON_PRIMARY, weight=ft.FontWeight.W_600),
-        width=280,
-        height=280,
+        content=ft.Row(
+            [
+                label(emoji, size=14),
+                label(label_text, size=12, color=color, weight=ft.FontWeight.W_700),
+            ],
+            spacing=6,
+            tight=True,
+        ),
+        bgcolor=ft.Colors.with_opacity(0.15, color),
+        border=ft.Border.all(1, ft.Colors.with_opacity(0.35, color)),
+        border_radius=RADIUS_LG,
+        padding=ft.Padding.symmetric(horizontal=12, vertical=6),
+    )
+
+
+def prompt_card(
+    text: str,
+    *,
+    on_click=None,
+    placeholder: bool = False,
+) -> ft.Container:
+    content = label(
+        text,
+        size=20 if not placeholder else 18,
+        color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
+        weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
+        text_align=ft.TextAlign.CENTER,
+    )
+    return ft.Container(
+        content=content,
+        width=320,
+        height=300,
         border_radius=RADIUS_MD,
         bgcolor=COLOR_CARD_FACE,
+        border=ft.Border.all(1, COLOR_BORDER),
         alignment=ft.Alignment.CENTER,
+        padding=24,
         on_click=on_click,
-        ink=True,
+        ink=on_click is not None,
     )
 
 

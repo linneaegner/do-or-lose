@@ -1,30 +1,35 @@
 from pathlib import Path
 
+# Legacy card images (optional, not used in förfest mode)
 ASSETS_DIR = Path(__file__).parent / "assets" / "cards"
 CARD_IMAGES = sorted(ASSETS_DIR.glob("*.png"))
 
 
 def card_image_src(card_path: Path) -> str:
-    """Path relative to Flet assets root (`-a assets` → `cards/…`)."""
     return f"cards/{card_path.name}"
 
-MIN_PLAYERS = 2
-MAX_POINTS = 100
-POINTS_PER_SUCCESS = 15
 
-# Design tokens
-COLOR_BG = "#F4F1EB"
-COLOR_SURFACE = "#FFFFFF"
-COLOR_PRIMARY = "#1A2332"
-COLOR_ACCENT = "#2F6F8F"
-COLOR_ACCENT_SOFT = "#D6E8F2"
-COLOR_MUTED = "#6B7280"
-COLOR_HINT = "#9CA3AF"
-COLOR_BORDER = "#E0DAD0"
-COLOR_PROGRESS_BG = "#EDE8DF"
-COLOR_CARD_FACE = "#1A2332"
-COLOR_SUCCESS = "#2D6A4F"
-COLOR_ON_PRIMARY = "#F8FAFC"
+MIN_PLAYERS = 2
+
+# Design tokens — warm pre-party palette
+COLOR_BG = "#1A1028"
+COLOR_SURFACE = "#2A1F3D"
+COLOR_PRIMARY = "#F8F4FF"
+COLOR_ACCENT = "#FF6B9D"
+COLOR_ACCENT_SOFT = "#3D2E52"
+COLOR_MUTED = "#B8A9C9"
+COLOR_HINT = "#7A6B8A"
+COLOR_BORDER = "#4A3858"
+COLOR_CARD_FACE = "#352847"
+COLOR_SUCCESS = "#7EE787"
+COLOR_ON_PRIMARY = "#1A1028"
+COLOR_CATEGORY: dict[str, str] = {
+    "sanning": "#6CB4EE",
+    "utmaning": "#FF9F5A",
+    "drick": "#C77DFF",
+    "rösta": "#FF6B9D",
+    "vild": "#FFE066",
+}
 
 WINDOW_WIDTH = 420
 WINDOW_HEIGHT = 760
