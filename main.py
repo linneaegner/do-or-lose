@@ -123,7 +123,7 @@ def main(page: ft.Page) -> None:
 
     def start_game(_: ft.ControlEvent) -> None:
         if len(player_list) >= MIN_PLAYERS:
-            page.go("/game")
+            navigate_to("/game")
 
     def next_round(_: ft.ControlEvent) -> None:
         global turn_index, game_started
@@ -145,7 +145,7 @@ def main(page: ft.Page) -> None:
                 current_player.get_name(),
                 style=ft.TextThemeStyle.DISPLAY_MEDIUM,
             )
-            page.go("/end")
+            navigate_to("/end")
             return
         next_round(_)
 
@@ -160,19 +160,25 @@ def main(page: ft.Page) -> None:
             player.undo_points(POINTS_PER_SUCCESS)
         set_active_player(player, card_blank_prev)
 
-    def route_change(_: ft.RouteChangeEvent) -> None:
+    def route_change(_: ft.RouteChangeEvent | None = None) -> None:
         page.views.clear()
-        page.views.append(ft.View("/", [start]))
+        page.views.append(ft.View(route="/", controls=[start]))
         if page.route == "/game":
-            page.views.append(ft.View("/game", [game]))
+            page.views.append(ft.View(route="/game", controls=[game]))
         elif page.route == "/end":
-            page.views.append(ft.View("/end", [end]))
+            page.views.append(ft.View(route="/end", controls=[end]))
         page.update()
 
-    def view_pop(_: ft.ViewPopEvent) -> None:
-        page.views.pop()
-        top_view = page.views[-1]
-        page.go(top_view.route)
+    def view_pop(e: ft.ViewPopEvent) -> None:
+        if e.view is not None:
+            page.views.remove(e.view)
+        elif page.views:
+            page.views.pop()
+        if page.views:
+            page.navigate(page.views[-1].route)
+
+    def navigate_to(route: str) -> None:
+        page.navigate(route)
 
     def on_hover(e: ft.ControlEvent) -> None:
         e.control.content = bold_text(
@@ -322,7 +328,7 @@ def main(page: ft.Page) -> None:
             ft.IconButton(icon=ft.Icons.ARROW_BACK_ROUNDED, on_click=prev_round),
             ft.IconButton(
                 icon=ft.Icons.CLOSE_ROUNDED,
-                on_click=lambda _: page.go("/"),
+                on_click=lambda _: navigate_to("/"),
             ),
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -428,7 +434,7 @@ def main(page: ft.Page) -> None:
     x_button = ft.Container(
         ft.IconButton(
             icon=ft.Icons.CLOSE_ROUNDED,
-            on_click=lambda _: page.go("/"),
+            on_click=lambda _: navigate_to("/"),
         ),
         alignment=ft.Alignment(1, 0),
     )
@@ -452,7 +458,7 @@ def main(page: ft.Page) -> None:
 
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.go(page.route)
+    route_change()
 
 
 if __name__ == "__main__":
