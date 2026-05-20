@@ -1,13 +1,13 @@
 [project]
-name = "kvallskort"
+name = "rundan"
 version = "1.0.0"
-description = "Kvällskort — svenskt partykortspel med textkort"
+description = "Rundan — svenskt partykortspel med textkort"
 requires-python = ">=3.11"
 dependencies = ["flet==0.85.1"]
 
 [tool.flet]
 org = "com.linneaegner"
-product = "Kvällskort"
+product = "Rundan"
 
 [tool.flet.web]
 route_url_strategy = "hash"

@@ -1,4 +1,4 @@
-"""Frågor och kortlek för Kvällskort."""
+"""Frågor och kortlek för Rundan."""
 
 from __future__ import annotations
 

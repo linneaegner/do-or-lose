@@ -1,6 +1,6 @@
 <div align="center">
 
-# Kvällskort
+# Rundan
 
 **Desktop party card game · Python & Flet**
 
@@ -16,7 +16,7 @@
 
 ## Overview
 
-**Kvällskort** is a Swedish turn-based party card game for friends: add players in a lobby, pick categories, draw text challenge cards, and pass turns until the deck runs out. Built with **Python 3.11+** and **Flet 0.85** as coursework for *Programming 2* at the University of Gothenburg (2023), refactored in 2026 with a text-card deck, category filters, pytest, and a playable web version on GitHub Pages.
+**Rundan** is a Swedish turn-based party card game for friends: add players in a lobby, pick categories, draw text challenge cards, and pass turns until the deck runs out. Built with **Python 3.11+** and **Flet 0.85** as coursework for *Programming 2* at the University of Gothenburg (2023), refactored in 2026 with a text-card deck, category filters, pytest, and a playable web version on GitHub Pages.
 
 ## Features
 
@@ -109,7 +109,7 @@ flowchart LR
 ## Context
 
 - **Original (2023):** University coursework — OOP desktop app with Flet instead of console I/O. Early version used image cards and Swedish UI.
-- **This repo (2026):** Refactored **Kvällskort** — text-card deck, category filters, Flet 0.85, pytest, GitHub Pages deploy. Public on GitHub; not listed on [linneaegner.se](https://linneaegner.se).
+- **This repo (2026):** Refactored **Rundan** — text-card deck, category filters, Flet 0.85, pytest, GitHub Pages deploy. Public on GitHub; not listed on [linneaegner.se](https://linneaegner.se).
 
 ## License
 

@@ -33,9 +33,9 @@ jobs:
           flet publish main.py \
             --base-url "${GITHUB_REPOSITORY#*/}" \
             --route-url-strategy hash \
-            --app-name "Kvällskort" \
-            --app-short-name "Kvällskort" \
-            --app-description "Kvällskort — partykortspel med 100 textkort, en delad skärm" \
+            --app-name "Rundan" \
+            --app-short-name "Rundan" \
+            --app-description "Rundan — partykortspel med 100 textkort, en delad skärm" \
             --distpath dist
 
       - name: Upload Pages artifact
