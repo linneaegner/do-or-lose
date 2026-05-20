@@ -6,7 +6,9 @@
 
 *Programming 2 · Göteborgs universitet · 2023 · Solo project · refaktorerat 2026*
 
-[Features](#features) · [Quick start](#quick-start) · [Architecture](#architecture) · [Context](#context)
+**[▶ Spela i webbläsaren](https://linneaegner.github.io/forfest/)**
+
+[Features](#features) · [Spela](#spela) · [Quick start](#quick-start) · [Architecture](#architecture) · [Context](#context)
 
 </div>
 
@@ -26,6 +28,17 @@
 | **Cards** | 100 Swedish text prompts across five categories |
 | **UI** | Dark pre-party theme, responsive layout, Swedish copy |
 
+## Spela
+
+**Ingen installation** — öppna i webbläsaren (mobil eller laptop). Ett kortspel för **en delad skärm**: lägg in alla spelare, välj kategorier, dra kort i turordning.
+
+| | |
+|---|---|
+| **Webb** | **https://linneaegner.github.io/forfest/** |
+| **Repo heter fortfarande `do-or-lose`?** | https://linneaegner.github.io/do-or-lose/ |
+
+> Första laddningen kan ta ~10–20 s (Python körs i webbläsaren). Kräver att [GitHub Pages](https://github.com/linneaegner/forfest/settings/pages) är aktiverat med **GitHub Actions** som källa — sker automatiskt efter push till `main`.
+
 ## Screenshots
 
 | Lobby | Card draw | Game |
@@ -36,7 +49,7 @@
 
 ## Quick start
 
-**Requirements:** Python 3.11+, macOS or Linux (desktop tested on macOS)
+**Requirements:** Python 3.11+, macOS or Linux (desktop tested on macOS). For playing with friends, use the [web link](#spela) instead.
 
 ```bash
 git clone https://github.com/linneaegner/forfest.git
@@ -84,7 +97,8 @@ flowchart LR
 | `questions.py` | `Category`, `Question`, `QuestionDeck` — 100 cards |
 | `theme.py` | Shared UI components and layout |
 | `constants.py` | Design tokens and game rules |
-| `run.sh` | Convenience launcher (web mode, fixed port) |
+| `run.sh` | Convenience launcher (local web mode on `127.0.0.1:8550`) |
+| `.github/workflows/build-deploy.yml` | Builds and deploys the playable web version to GitHub Pages |
 
 ## Context
 

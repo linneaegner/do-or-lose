@@ -11,6 +11,8 @@ ENV/
 
 # Flet
 .flet/
+build/
+dist/
 
 # OS / editor
 .DS_Store
