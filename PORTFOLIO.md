@@ -8,7 +8,7 @@ Desktop turn-based party game — OOP player model, Flet multi-view routing, loc
 
 ## About — paragraph
 
-For **Programming 2** at Uppsala University (2023) I built a desktop app with object-oriented design and routed views instead of console output. **DO or LOSE** lets friends join a lobby, take turns drawing challenge cards, and race to 100 points. I modeled players in a `Person` class, wired Flet navigation across lobby, game, and winner screens, and replaced fragile image hotlinks with bundled assets. Solo coursework, later refactored for portfolio presentation.
+For **Programming 2** at the University of Gothenburg (2023) I built a desktop app with object-oriented design and routed views instead of console output. **DO or LOSE** lets friends join a lobby, take turns drawing challenge cards, and race to 100 points. I modeled players in a `Person` class, wired Flet navigation across lobby, game, and winner screens, and replaced fragile image hotlinks with bundled assets. Solo coursework, later refactored for portfolio presentation.
 
 ## Bullets
 
@@ -25,7 +25,7 @@ For **Programming 2** at Uppsala University (2023) I built a desktop app with ob
 | title | DO or LOSE |
 | category | `build` |
 | period | 2023 |
-| org | Uppsala University |
+| org | University of Gothenburg |
 | detail | Programming 2 |
 | group | Solo |
 | tools | Python; Flet |

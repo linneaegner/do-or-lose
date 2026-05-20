@@ -215,7 +215,7 @@ def main(page: ft.Page) -> None:
 
     lobby = ft.Column(
         controls=[
-            page_header("DO or LOSE", "Turn-based party game · Programming 2, 2023"),
+            page_header("DO or LOSE", "Turn-based party game · University of Gothenburg, 2023"),
             ft.Container(height=8),
             surface(
                 ft.Row(
@@ -228,7 +228,6 @@ def main(page: ft.Page) -> None:
                 label("Players", size=12, color=COLOR_MUTED, weight=ft.FontWeight.W_600),
                 name_view,
                 lobby_hint,
-                tight=True,
             ),
             ft.Container(height=4),
             start_btn,

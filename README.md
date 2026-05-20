@@ -4,7 +4,7 @@
 
 **Desktop turn-based party game · Python & Flet**
 
-*Programming 2 · Uppsala University · 2023 · Solo project*
+*Programming 2 · University of Gothenburg · 2023 · Solo project*
 
 [Features](#features) · [Quick start](#quick-start) · [Architecture](#architecture) · [Context](#context)
 
