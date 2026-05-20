@@ -17,7 +17,6 @@ from constants import (
     COLOR_SURFACE,
     RADIUS_LG,
     RADIUS_MD,
-    RADIUS_SM,
 )
 
 
@@ -38,32 +37,35 @@ def label(
     )
 
 
-def screen(content: ft.Control, *, scroll: bool = True) -> ft.Container:
+def screen(content: ft.Control, *, scroll: bool = False) -> ft.Container:
+    wrapper: ft.Control = (
+        ft.Column([content], scroll=ft.ScrollMode.AUTO, expand=True)
+        if scroll
+        else content
+    )
     return ft.Container(
-        content=content,
+        content=wrapper,
         bgcolor=COLOR_BG,
         padding=ft.Padding.symmetric(horizontal=24, vertical=20),
+        alignment=ft.Alignment(0, -1),
         expand=True,
     )
 
 
-def surface(
-    *controls: ft.Control,
-    padding: int = 16,
-    expand: bool = False,
-) -> ft.Container:
+def surface(*controls: ft.Control, padding: int = 16, width: int | None = None) -> ft.Container:
+    from constants import CONTENT_WIDTH
+
     return ft.Container(
-        content=ft.Column(controls=controls, spacing=12, tight=True),
+        content=ft.Column(
+            controls=list(controls),
+            spacing=12,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        ),
         bgcolor=COLOR_SURFACE,
         border=ft.Border.all(1, COLOR_BORDER),
         border_radius=RADIUS_MD,
         padding=padding,
-        shadow=ft.BoxShadow(
-            blur_radius=18,
-            color=ft.Colors.with_opacity(0.08, COLOR_PRIMARY),
-            offset=ft.Offset(0, 4),
-        ),
-        expand=expand,
+        width=width if width is not None else CONTENT_WIDTH,
     )
 
 
@@ -73,25 +75,17 @@ def primary_button(
     *,
     disabled: bool = False,
     width: int | None = None,
-    icon: ft.Icon | None = None,
 ) -> ft.FilledButton:
-    content: ft.Control = label(text, size=15, color=COLOR_ON_PRIMARY, weight=ft.FontWeight.W_600)
-    if icon:
-        content = ft.Row(
-            [icon, label(text, size=15, color=COLOR_ON_PRIMARY, weight=ft.FontWeight.W_600)],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=8,
-            tight=True,
-        )
     return ft.FilledButton(
-        content=content,
+        content=text,
         on_click=on_click,
         disabled=disabled,
         width=width,
         style=ft.ButtonStyle(
             bgcolor={ft.ControlState.DEFAULT: COLOR_ACCENT, ft.ControlState.DISABLED: COLOR_HINT},
+            color={ft.ControlState.DEFAULT: COLOR_ON_PRIMARY, ft.ControlState.DISABLED: COLOR_MUTED},
             shape=ft.RoundedRectangleBorder(radius=RADIUS_MD),
-            padding=ft.Padding.symmetric(horizontal=20, vertical=16),
+            padding=ft.Padding.symmetric(horizontal=20, vertical=18),
         ),
     )
 
@@ -102,41 +96,54 @@ def secondary_button(text: str, on_click, *, width: int | None = None) -> ft.Out
         on_click=on_click,
         width=width,
         style=ft.ButtonStyle(
+            color={ft.ControlState.DEFAULT: COLOR_PRIMARY},
             side={ft.ControlState.DEFAULT: ft.BorderSide(1.5, COLOR_ACCENT)},
             shape=ft.RoundedRectangleBorder(radius=RADIUS_MD),
-            padding=ft.Padding.symmetric(horizontal=16, vertical=12),
+            padding=ft.Padding.symmetric(horizontal=16, vertical=14),
         ),
     )
 
 
-def name_field(hint: str = "Player name") -> ft.TextField:
+def name_field(hint: str = "Namn") -> ft.TextField:
     return ft.TextField(
         hint_text=hint,
         hint_style=ft.TextStyle(color=COLOR_HINT, size=14),
-        border=ft.InputBorder.NONE,
+        border_color=COLOR_BORDER,
+        focused_border_color=COLOR_ACCENT,
         filled=True,
         bgcolor=COLOR_BG,
         border_radius=RADIUS_LG,
-        content_padding=ft.Padding.symmetric(horizontal=18, vertical=14),
-        text_style=ft.TextStyle(color=COLOR_PRIMARY, size=15, weight=ft.FontWeight.W_500),
+        content_padding=ft.Padding.symmetric(horizontal=16, vertical=14),
+        text_style=ft.TextStyle(color=COLOR_PRIMARY, size=16, weight=ft.FontWeight.W_500),
         cursor_color=COLOR_ACCENT,
         autofocus=True,
     )
 
 
-def player_chip(name: str) -> ft.Container:
+def player_chip(name: str, on_remove, *, width: int | None = None) -> ft.Container:
+    from constants import CONTENT_WIDTH
+
+    chip_width = width if width is not None else CONTENT_WIDTH
     return ft.Container(
         content=ft.Row(
             [
-                ft.Icon(ft.Icons.PERSON_OUTLINE, size=16, color=COLOR_ACCENT),
-                label(name, size=14, weight=ft.FontWeight.W_600),
+                ft.Icon(ft.Icons.PERSON, size=20, color=COLOR_ACCENT),
+                label(name, size=17, weight=ft.FontWeight.W_600),
+                ft.IconButton(
+                    icon=ft.Icons.CLOSE,
+                    icon_size=18,
+                    icon_color=COLOR_MUTED,
+                    tooltip="Ta bort",
+                    on_click=on_remove,
+                    style=ft.ButtonStyle(padding=0),
+                ),
             ],
-            spacing=6,
-            tight=True,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         ),
         bgcolor=COLOR_ACCENT_SOFT,
         border_radius=RADIUS_LG,
-        padding=ft.Padding.symmetric(horizontal=14, vertical=8),
+        padding=ft.Padding.only(left=16, right=4, top=10, bottom=10),
+        width=chip_width,
     )
 
 
@@ -146,10 +153,7 @@ def category_badge(category_key: str, emoji: str, label_text: str) -> ft.Contain
     color = COLOR_CATEGORY.get(category_key, COLOR_ACCENT)
     return ft.Container(
         content=ft.Row(
-            [
-                label(emoji, size=14),
-                label(label_text, size=12, color=color, weight=ft.FontWeight.W_700),
-            ],
+            [label(emoji, size=14), label(label_text, size=12, color=color, weight=ft.FontWeight.W_700)],
             spacing=6,
             tight=True,
         ),
@@ -160,44 +164,43 @@ def category_badge(category_key: str, emoji: str, label_text: str) -> ft.Contain
     )
 
 
-def prompt_card(
-    text: str,
-    *,
-    on_click=None,
-    placeholder: bool = False,
-) -> ft.Container:
-    content = label(
-        text,
-        size=20 if not placeholder else 18,
-        color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
-        weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
-        text_align=ft.TextAlign.CENTER,
-    )
+def prompt_card(text: str, *, on_click=None, placeholder: bool = False) -> ft.Container:
     return ft.Container(
-        content=content,
+        content=label(
+            text,
+            size=22 if not placeholder else 18,
+            color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
+            weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
+            text_align=ft.TextAlign.CENTER,
+        ),
         width=320,
-        height=300,
+        height=280,
         border_radius=RADIUS_MD,
         bgcolor=COLOR_CARD_FACE,
         border=ft.Border.all(1, COLOR_BORDER),
         alignment=ft.Alignment.CENTER,
-        padding=24,
+        padding=28,
         on_click=on_click,
         ink=on_click is not None,
     )
 
 
-def icon_bar(*buttons: ft.IconButton) -> ft.Row:
-    return ft.Row(
-        controls=list(buttons),
-        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-    )
-
-
-def page_header(title: str, subtitle: str | None = None) -> ft.Column:
+def page_header(title: str, subtitle: str | None = None, *, large: bool = False) -> ft.Column:
     items = [
-        label(title, size=34, weight=ft.FontWeight.W_700),
+        label(
+            title,
+            size=40 if large else 34,
+            weight=ft.FontWeight.W_700,
+            text_align=ft.TextAlign.CENTER,
+        )
     ]
     if subtitle:
-        items.append(label(subtitle, size=14, color=COLOR_MUTED))
+        items.append(
+            label(
+                subtitle,
+                size=16 if large else 14,
+                color=COLOR_MUTED,
+                text_align=ft.TextAlign.CENTER,
+            )
+        )
     return ft.Column(items, spacing=6, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
