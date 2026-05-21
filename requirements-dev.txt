@@ -1,2 +1,4 @@
 -r requirements.txt
+flet-desktop==0.85.1
+flet-web==0.85.1
 pytest>=8.0.0
