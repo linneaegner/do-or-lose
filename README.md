@@ -8,23 +8,7 @@
 
 </div>
 
-Turordnat partykortspel för vänner på **en delad skärm**. Lägg till spelare, välj kategorier, dra kort i turordning. Körs i webbläsaren — ingen installation.
-
-## Spela
-
-**https://linneaegner.github.io/rundan/**
-
-## Lokalt
-
-```bash
-git clone https://github.com/linneaegner/rundan.git
-cd rundan
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-./run.sh    # http://127.0.0.1:8550
-```
-
-Tester: `pip install -r requirements-dev.txt && pytest`
+Turordnat partykortspel för vänner på **en delad skärm**. Lägg till spelare, välj kategorier, dra kort i turordning.
 
 ## Screenshots
 
