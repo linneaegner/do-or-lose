@@ -43,6 +43,17 @@ Solo coursework (GU 2023). GitHub only — not on [linnea.egner.se](https://linn
 
 ## Screenshots
 
-| Lobby | Spelare tillagda | Spel |
-|:-----:|:----------------:|:----:|
-| ![Lobby – tom](docs/screenshots/lobby-empty.png) | ![Lobby – spelare](docs/screenshots/lobby-players.png) | ![Spel](docs/screenshots/game.png) |
+<p align="center">
+  <img src="docs/screenshots/lobby-empty.png" width="300" alt="Lobby – tom" /><br/>
+  <em>Lobby – lägg till spelare och välj kategorier</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/lobby-players.png" width="300" alt="Lobby – spelare tillagda" /><br/>
+  <em>Spelare tillagda – redo att starta</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/game-turn.png" width="300" alt="Spel – kort" /><br/>
+  <em>Spel – turordning och kort</em>
+</p>
