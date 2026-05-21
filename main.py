@@ -294,12 +294,10 @@ def main(page: ft.Page) -> None:
             game_meta,
             category_slot,
             ft.Container(content=card_body, alignment=ft.Alignment.CENTER),
-            ft.Container(expand=True),
             next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=10,
-        expand=True,
+        spacing=12,
     )
 
     lobby_panel = ft.Container(content=lobby_content, width=CONTENT_WIDTH)
