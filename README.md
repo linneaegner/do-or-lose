@@ -43,6 +43,6 @@ Solo coursework (GU 2023). GitHub only — not on [linnea.egner.se](https://linn
 
 ## Screenshots
 
-| Lobby | Kort | Spel |
-|:-----:|:----:|:----:|
-| ![Lobby](docs/screenshots/lobby.png) | ![Kort](docs/screenshots/game.png) | ![Spel](docs/screenshots/home.png) |
+| Lobby | Kort |
+|:-----:|:----:|
+| ![Lobby](docs/screenshots/lobby.png) | ![Kort](docs/screenshots/game.png) |
