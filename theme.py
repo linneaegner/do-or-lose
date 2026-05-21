@@ -126,7 +126,13 @@ def name_field(hint: str = "Namn") -> ft.TextField:
     )
 
 
-def player_chip(name: str, on_remove, *, width: int | None = None) -> ft.Container:
+def player_chip(
+    name: str,
+    on_remove,
+    *,
+    width: int | None = None,
+    name_size: int = 17,
+) -> ft.Container:
     from constants import CONTENT_WIDTH
 
     chip_width = width if width is not None else CONTENT_WIDTH
@@ -134,7 +140,7 @@ def player_chip(name: str, on_remove, *, width: int | None = None) -> ft.Contain
         content=ft.Row(
             [
                 ft.Icon(ft.Icons.PERSON, size=20, color=COLOR_ACCENT),
-                label(name, size=17, weight=ft.FontWeight.W_600),
+                label(name, size=name_size, weight=ft.FontWeight.W_600),
                 ft.IconButton(
                     icon=ft.Icons.CLOSE,
                     icon_size=18,

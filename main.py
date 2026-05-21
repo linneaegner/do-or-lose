@@ -8,10 +8,7 @@ from constants import (
     COLOR_BG,
     COLOR_MUTED,
     COLOR_PRIMARY,
-    CONTENT_WIDTH,
     MIN_PLAYERS,
-    WINDOW_HEIGHT,
-    WINDOW_WIDTH,
     layout_metrics,
 )
 from models import Person
@@ -39,10 +36,6 @@ def main(page: ft.Page) -> None:
     name_buffer = ""
 
     page.title = "Rundan"
-    if not page.web:
-        page.window.width = WINDOW_WIDTH
-        page.window.height = WINDOW_HEIGHT
-        page.window.resizable = False
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = COLOR_BG
     page.padding = 0
@@ -79,7 +72,12 @@ def main(page: ft.Page) -> None:
                     refresh()
 
             player_list.controls.append(
-                player_chip(person.get_name(), remove_player, width=content_width)
+                player_chip(
+                    person.get_name(),
+                    remove_player,
+                    width=content_width,
+                    name_size=layout["chip_text_size"],
+                )
             )
 
         start_btn.disabled = not can_start
@@ -221,6 +219,18 @@ def main(page: ft.Page) -> None:
 
         lobby_header.controls[0].size = layout["title_size"]
         player_name.size = layout["player_name_size"]
+        game_meta.size = layout["meta_text_size"]
+        card_content = card_body.content
+        if isinstance(card_content, ft.Column):
+            for i, control in enumerate(card_content.controls):
+                if isinstance(control, ft.Text):
+                    control.size = layout["meta_text_size"] if i > 0 else (
+                        card_placeholder_size if control.color == COLOR_MUTED else card_text_size
+                    )
+        elif isinstance(card_content, ft.Text):
+            card_content.size = (
+                card_placeholder_size if card_content.color == COLOR_MUTED else card_text_size
+            )
         rebuild_name_input(layout)
         rebuild_lobby()
         refresh()
@@ -233,7 +243,7 @@ def main(page: ft.Page) -> None:
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
     )
-    game_meta = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
+    game_meta = ft.Text("", size=layout["meta_text_size"], color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     category_slot = ft.Container(alignment=ft.Alignment.CENTER)
     card_body = prompt_card(
         "",
@@ -272,7 +282,7 @@ def main(page: ft.Page) -> None:
                     card_text,
                     ft.Text(
                         CARD_SWAP_HINT,
-                        size=13,
+                        size=layout["meta_text_size"],
                         color=COLOR_MUTED,
                         text_align=ft.TextAlign.CENTER,
                     ),
@@ -318,7 +328,7 @@ def main(page: ft.Page) -> None:
         lobby_stack.visible = True
         rebuild_lobby()
 
-    next_btn = primary_button("Nästa spelare", next_player, width=CONTENT_WIDTH, disabled=True)
+    next_btn = primary_button("Nästa spelare", next_player, width=content_width, disabled=True)
     next_btn.visible = False
 
     game_content = ft.Column(

@@ -57,5 +57,7 @@ def layout_metrics(page_width: float | None) -> dict[str, int | bool]:
         "player_name_size": 22 if narrow else 26,
         "card_text_size": 18 if narrow else 22,
         "card_placeholder_size": 16 if narrow else 18,
+        "meta_text_size": 12 if narrow else 13,
+        "chip_text_size": 15 if narrow else 17,
         "add_btn_width": content_width if narrow else 110,
     }
