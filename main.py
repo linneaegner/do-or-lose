@@ -188,6 +188,7 @@ def main(page: ft.Page) -> None:
         next_btn.width = content_width
         card_body.width = min(content_width + 20, 520)
         card_body.height = 300 if wide else 280
+        card_hint.width = content_width
 
         lobby_header.controls[0].size = 40 if wide else 34
 
@@ -200,9 +201,11 @@ def main(page: ft.Page) -> None:
     category_slot = ft.Container(alignment=ft.Alignment.CENTER)
     card_hint = ft.Text(
         "Tryck på kortet om du vill byta kort",
-        size=13,
+        size=14,
         color=COLOR_MUTED,
+        weight=ft.FontWeight.W_500,
         text_align=ft.TextAlign.CENTER,
+        width=CONTENT_WIDTH,
     )
     card_body = prompt_card("", placeholder=True)
 
@@ -270,6 +273,12 @@ def main(page: ft.Page) -> None:
     next_btn = primary_button("Nästa spelare", next_player, width=CONTENT_WIDTH, disabled=True)
     next_btn.visible = False
 
+    game_footer = ft.Column(
+        [card_hint, next_btn],
+        spacing=12,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+
     game_content = ft.Column(
         [
             ft.Row(
@@ -281,13 +290,11 @@ def main(page: ft.Page) -> None:
             player_name,
             game_meta,
             category_slot,
-            ft.Container(card_body, alignment=ft.Alignment.CENTER),
-            card_hint,
-            next_btn,
+            ft.Container(content=card_body, alignment=ft.Alignment.CENTER, expand=True),
+            game_footer,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=10,
-        scroll=ft.ScrollMode.AUTO,
         expand=True,
     )
 
