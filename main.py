@@ -8,7 +8,6 @@ from constants import (
     COLOR_BG,
     COLOR_MUTED,
     COLOR_PRIMARY,
-    COLOR_SUCCESS,
     CONTENT_WIDTH,
     CONTENT_WIDTH_WIDE,
     LAYOUT_WIDE_BREAKPOINT,
@@ -53,17 +52,12 @@ def main(page: ft.Page) -> None:
     txt_name.expand = True
 
     player_list = ft.Column(spacing=8, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-    lobby_status = ft.Text("", size=14, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
 
     content_width = CONTENT_WIDTH
 
-    def lobby_status_text(count: int) -> tuple[str, str]:
-        if count >= MIN_PLAYERS:
-            return f"{count} spelare", COLOR_SUCCESS
-        if count == 0:
-            return f"Minst {MIN_PLAYERS} spelare", COLOR_MUTED
-        remaining = MIN_PLAYERS - count
-        return f"{count} spelare · {remaining} till", COLOR_MUTED
+    def show_snack(message: str) -> None:
+        page.snack_bar = ft.SnackBar(content=ft.Text(message), duration=2000)
+        page.snack_bar.open = True
 
     def rebuild_lobby() -> None:
         count = len(players)
@@ -82,10 +76,8 @@ def main(page: ft.Page) -> None:
                 player_chip(person.get_name(), remove_player, width=content_width)
             )
 
-        text, color = lobby_status_text(count)
-        lobby_status.value = text
-        lobby_status.color = color
         start_btn.disabled = not can_start
+        start_btn.content = "Starta rundan" if can_start else f"Starta ({count}/{MIN_PLAYERS} spelare)"
         refresh()
 
     def on_name_change(e: ft.ControlEvent) -> None:
@@ -100,14 +92,12 @@ def main(page: ft.Page) -> None:
             name = (txt_name.value or name_buffer or "").strip()
 
         if not name:
-            lobby_status.value = "Skriv ett namn först."
-            lobby_status.color = COLOR_MUTED
+            show_snack("Skriv ett namn först.")
             refresh()
             return
 
         if any(p.get_name().lower() == name.lower() for p in players):
-            lobby_status.value = f"{name} finns redan."
-            lobby_status.color = COLOR_MUTED
+            show_snack(f"{name} finns redan.")
             refresh()
             return
 
@@ -161,15 +151,14 @@ def main(page: ft.Page) -> None:
         begin_turn()
         refresh()
 
-    start_btn = primary_button("Starta rundan", start_game, disabled=True, width=CONTENT_WIDTH)
-    lobby_header = page_header("Rundan", f"{len(QUESTIONS)} kort")
+    start_btn = primary_button("Starta (0/2 spelare)", start_game, disabled=True, width=CONTENT_WIDTH)
+    lobby_header = page_header("Rundan")
     lobby_surface = surface(
         ft.Row(
             [txt_name, secondary_button("Lägg till", add_player, width=110)],
             spacing=10,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         ),
-        lobby_status,
         player_list,
     )
 
@@ -201,12 +190,8 @@ def main(page: ft.Page) -> None:
         card_body.height = 300 if wide else 280
 
         lobby_header.controls[0].size = 40 if wide else 34
-        if len(lobby_header.controls) > 1:
-            lobby_header.controls[1].size = 16 if wide else 14
-        lobby_status.size = 15 if wide else 14
 
-        if players or not player_list.controls:
-            rebuild_lobby()
+        rebuild_lobby()
         refresh()
 
     # —— Game ——
