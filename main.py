@@ -9,11 +9,10 @@ from constants import (
     COLOR_MUTED,
     COLOR_PRIMARY,
     CONTENT_WIDTH,
-    CONTENT_WIDTH_WIDE,
-    LAYOUT_WIDE_BREAKPOINT,
     MIN_PLAYERS,
     WINDOW_HEIGHT,
     WINDOW_WIDTH,
+    layout_metrics,
 )
 from models import Person
 from questions import CATEGORY_EMOJI, CATEGORY_LABELS, Category, QUESTIONS, Question, QuestionDeck
@@ -40,12 +39,18 @@ def main(page: ft.Page) -> None:
     name_buffer = ""
 
     page.title = "Rundan"
-    page.window.width = WINDOW_WIDTH
-    page.window.height = WINDOW_HEIGHT
-    page.window.resizable = False
+    if not page.web:
+        page.window.width = WINDOW_WIDTH
+        page.window.height = WINDOW_HEIGHT
+        page.window.resizable = False
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = COLOR_BG
     page.padding = 0
+
+    layout = layout_metrics(page.width)
+    content_width = layout["content_width"]
+    card_text_size = layout["card_text_size"]
+    card_placeholder_size = layout["card_placeholder_size"]
 
     def refresh() -> None:
         page.update()
@@ -55,8 +60,6 @@ def main(page: ft.Page) -> None:
     txt_name.expand = True
 
     player_list = ft.Column(spacing=8, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-
-    content_width = CONTENT_WIDTH
 
     def show_snack(message: str) -> None:
         page.snack_bar = ft.SnackBar(content=ft.Text(message), duration=2000)
@@ -116,9 +119,29 @@ def main(page: ft.Page) -> None:
         wrap=True,
         spacing=10,
         run_spacing=10,
-        width=CONTENT_WIDTH,
         alignment=ft.MainAxisAlignment.CENTER,
     )
+
+    add_player_btn = secondary_button("Lägg till", add_player, width=layout["add_btn_width"])
+    name_input_slot = ft.Container()
+
+    def rebuild_name_input(metrics: dict[str, int | bool]) -> None:
+        add_player_btn.width = metrics["add_btn_width"]
+        txt_name.expand = not metrics["narrow"]
+        if metrics["narrow"]:
+            txt_name.width = metrics["content_width"]
+            name_input_slot.content = ft.Column(
+                [txt_name, add_player_btn],
+                spacing=10,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            )
+        else:
+            txt_name.width = None
+            name_input_slot.content = ft.Row(
+                [txt_name, add_player_btn],
+                spacing=10,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            )
 
     def refresh_categories() -> None:
         category_row.controls = [
@@ -154,14 +177,11 @@ def main(page: ft.Page) -> None:
         begin_turn()
         refresh()
 
-    start_btn = primary_button("Starta (0/2 spelare)", start_game, disabled=True, width=CONTENT_WIDTH)
+    start_btn = primary_button("Starta (0/2 spelare)", start_game, disabled=True, width=content_width)
     lobby_header = page_header("Rundan")
+    rebuild_name_input(layout)
     lobby_surface = surface(
-        ft.Row(
-            [txt_name, secondary_button("Lägg till", add_player, width=110)],
-            spacing=10,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        ),
+        name_input_slot,
         player_list,
     )
 
@@ -178,10 +198,16 @@ def main(page: ft.Page) -> None:
     )
 
     def apply_layout() -> None:
-        nonlocal content_width
-        wide = (page.width or WINDOW_WIDTH) >= LAYOUT_WIDE_BREAKPOINT
-        content_width = CONTENT_WIDTH_WIDE if wide else CONTENT_WIDTH
+        nonlocal content_width, card_text_size, card_placeholder_size, layout
+        layout = layout_metrics(page.width)
+        content_width = layout["content_width"]
+        card_text_size = layout["card_text_size"]
+        card_placeholder_size = layout["card_placeholder_size"]
 
+        screen_shell.padding = ft.Padding.symmetric(
+            horizontal=layout["pad_x"],
+            vertical=layout["pad_y"],
+        )
         lobby_panel.width = content_width
         game_panel.width = content_width
         lobby_surface.width = content_width
@@ -189,19 +215,32 @@ def main(page: ft.Page) -> None:
         category_row.width = content_width
         start_btn.width = content_width
         next_btn.width = content_width
-        card_body.width = min(content_width + 20, 520)
-        card_body.height = 300 if wide else 280
+        card_body.width = layout["card_width"]
+        card_body.height = layout["card_height"]
+        card_body.padding = 16 if layout["narrow"] else 20
 
-        lobby_header.controls[0].size = 40 if wide else 34
-
+        lobby_header.controls[0].size = layout["title_size"]
+        player_name.size = layout["player_name_size"]
+        rebuild_name_input(layout)
         rebuild_lobby()
         refresh()
 
     # —— Game ——
-    player_name = ft.Text("—", size=26, color=COLOR_PRIMARY, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER)
+    player_name = ft.Text(
+        "—",
+        size=layout["player_name_size"],
+        color=COLOR_PRIMARY,
+        weight=ft.FontWeight.W_700,
+        text_align=ft.TextAlign.CENTER,
+    )
     game_meta = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     category_slot = ft.Container(alignment=ft.Alignment.CENTER)
-    card_body = prompt_card("", placeholder=True)
+    card_body = prompt_card(
+        "",
+        placeholder=True,
+        text_size=card_text_size,
+        placeholder_size=card_placeholder_size,
+    )
 
     def sync_game_header() -> None:
         person = players[turn_index % len(players)]
@@ -222,7 +261,7 @@ def main(page: ft.Page) -> None:
     def set_card(text: str, *, placeholder: bool = False, on_click=None) -> None:
         card_text = ft.Text(
             text,
-            size=22 if not placeholder else 18,
+            size=card_placeholder_size if placeholder else card_text_size,
             color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
             weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
             text_align=ft.TextAlign.CENTER,
@@ -302,8 +341,8 @@ def main(page: ft.Page) -> None:
         expand=True,
     )
 
-    lobby_panel = ft.Container(content=lobby_content, width=CONTENT_WIDTH)
-    game_panel = ft.Container(content=game_content, width=CONTENT_WIDTH)
+    lobby_panel = ft.Container(content=lobby_content, width=content_width)
+    game_panel = ft.Container(content=game_content, width=content_width)
 
     def centered_row(panel: ft.Container) -> ft.Row:
         return ft.Row(
@@ -318,12 +357,14 @@ def main(page: ft.Page) -> None:
 
     page.on_resize = lambda e: apply_layout()
 
-    page.add(
-        screen(
-            ft.Stack([lobby_stack, game_stack], expand=True),
-            scroll=False,
-        )
+    screen_shell = screen(
+        ft.Stack([lobby_stack, game_stack], expand=True),
+        scroll=False,
+        horizontal_padding=layout["pad_x"],
+        vertical_padding=layout["pad_y"],
     )
+
+    page.add(screen_shell)
     rebuild_lobby()
     apply_layout()
 

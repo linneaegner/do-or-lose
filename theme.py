@@ -37,7 +37,13 @@ def label(
     )
 
 
-def screen(content: ft.Control, *, scroll: bool = False) -> ft.Container:
+def screen(
+    content: ft.Control,
+    *,
+    scroll: bool = False,
+    horizontal_padding: int = 24,
+    vertical_padding: int = 20,
+) -> ft.Container:
     wrapper: ft.Control = (
         ft.Column([content], scroll=ft.ScrollMode.AUTO, expand=True)
         if scroll
@@ -46,7 +52,7 @@ def screen(content: ft.Control, *, scroll: bool = False) -> ft.Container:
     return ft.Container(
         content=wrapper,
         bgcolor=COLOR_BG,
-        padding=ft.Padding.symmetric(horizontal=24, vertical=20),
+        padding=ft.Padding.symmetric(horizontal=horizontal_padding, vertical=vertical_padding),
         alignment=ft.Alignment(0, -1),
         expand=True,
     )
@@ -164,22 +170,27 @@ def category_badge(category_key: str, emoji: str, label_text: str) -> ft.Contain
     )
 
 
-def prompt_card(text: str, *, on_click=None, placeholder: bool = False) -> ft.Container:
+def prompt_card(
+    text: str,
+    *,
+    on_click=None,
+    placeholder: bool = False,
+    text_size: int = 22,
+    placeholder_size: int = 18,
+) -> ft.Container:
     return ft.Container(
         content=label(
             text,
-            size=22 if not placeholder else 18,
+            size=placeholder_size if placeholder else text_size,
             color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
             weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
             text_align=ft.TextAlign.CENTER,
         ),
-        width=320,
-        height=280,
         border_radius=RADIUS_MD,
         bgcolor=COLOR_CARD_FACE,
         border=ft.Border.all(1, COLOR_BORDER),
         alignment=ft.Alignment.CENTER,
-        padding=28,
+        padding=20,
         on_click=on_click,
         ink=on_click is not None,
     )
