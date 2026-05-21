@@ -58,6 +58,13 @@ def main(page: ft.Page) -> None:
         page.snack_bar = ft.SnackBar(content=ft.Text(message), duration=2000)
         page.snack_bar.open = True
 
+    def focus_name_input() -> None:
+        async def _focus() -> None:
+            txt_name.focus()
+            page.update()
+
+        page.run_task(_focus)
+
     def rebuild_lobby() -> None:
         count = len(players)
         can_start = count >= MIN_PLAYERS
@@ -97,18 +104,19 @@ def main(page: ft.Page) -> None:
 
         if not name:
             show_snack("Skriv ett namn först.")
-            refresh()
+            focus_name_input()
             return
 
         if any(p.get_name().lower() == name.lower() for p in players):
             show_snack(f"{name} finns redan.")
-            refresh()
+            focus_name_input()
             return
 
         players.append(Person(name))
         txt_name.value = ""
         name_buffer = ""
         rebuild_lobby()
+        focus_name_input()
 
     txt_name.on_change = on_name_change
     txt_name.on_submit = add_player
