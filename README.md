@@ -39,7 +39,7 @@ pip install -r requirements-dev.txt && pytest
 | `models.py` | `Person` |
 | `theme.py` / `constants.py` | UI och design tokens |
 
-Solo coursework (GU 2023). GitHub only — not on [linneaegner.se](https://linnea.egner.se).
+Solo coursework (GU 2023). GitHub only — not on [linnea.egner.se](https://linnea.egner.se).
 
 ## Screenshots
 
