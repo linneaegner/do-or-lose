@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 import flet as ft
 
 from constants import (
@@ -51,21 +49,30 @@ def main(page: ft.Page) -> None:
         page.update()
 
     # —— Lobby ——
-    txt_name = name_field("Skriv namn…")
-    txt_name.expand = True
-
     player_list = ft.Column(spacing=8, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
     def show_snack(message: str) -> None:
         page.snack_bar = ft.SnackBar(content=ft.Text(message), duration=2000)
         page.snack_bar.open = True
 
-    def focus_name_input() -> None:
-        async def _focus() -> None:
-            await txt_name.focus()
-            page.update()
+    def on_name_change(e: ft.ControlEvent) -> None:
+        nonlocal name_buffer
+        name_buffer = (getattr(e.control, "value", None) or "").strip()
 
-        page.run_task(_focus)
+    def make_name_field(*, autofocus: bool = False) -> ft.TextField:
+        field = name_field("Skriv namn…")
+        field.expand = True
+        field.autofocus = autofocus
+        field.on_change = on_name_change
+        field.on_submit = add_player
+        return field
+
+    def replace_name_field(*, focus: bool = False, value: str = "") -> None:
+        nonlocal txt_name
+        txt_name = make_name_field(autofocus=focus)
+        if value:
+            txt_name.value = value
+        rebuild_name_input(layout)
 
     def rebuild_lobby(*, update: bool = True) -> None:
         count = len(players)
@@ -94,10 +101,6 @@ def main(page: ft.Page) -> None:
         if update:
             refresh()
 
-    def on_name_change(e: ft.ControlEvent) -> None:
-        nonlocal name_buffer
-        name_buffer = (getattr(e.control, "value", None) or "").strip()
-
     def add_player(e: ft.ControlEvent | None = None) -> None:
         nonlocal name_buffer
         if e is not None and isinstance(e.control, ft.TextField):
@@ -107,43 +110,23 @@ def main(page: ft.Page) -> None:
 
         if not name:
             show_snack("Skriv ett namn först.")
-            focus_name_input()
+            replace_name_field(focus=True)
+            refresh()
             return
 
         if any(p.get_name().lower() == name.lower() for p in players):
             show_snack(f"{name} finns redan.")
-            focus_name_input()
+            replace_name_field(focus=True, value=name)
+            refresh()
             return
 
         players.append(Person(name))
-        txt_name.value = ""
         name_buffer = ""
         rebuild_lobby(update=False)
+        replace_name_field(focus=True)
+        refresh()
 
-        async def _finish_add() -> None:
-            page.update()
-            await asyncio.sleep(0.05)
-            await txt_name.focus()
-            page.update()
-
-        page.run_task(_finish_add)
-
-    def on_name_blur(e: ft.ControlEvent) -> None:
-        if not page.web:
-            return
-        if not (txt_name.value or name_buffer or "").strip():
-            return
-
-        async def _maybe_add_from_blur() -> None:
-            await asyncio.sleep(0.15)
-            if (txt_name.value or name_buffer or "").strip():
-                add_player()
-
-        page.run_task(_maybe_add_from_blur)
-
-    txt_name.on_change = on_name_change
-    txt_name.on_submit = add_player
-    txt_name.on_blur = on_name_blur
+    txt_name = make_name_field(autofocus=True)
 
     category_row = ft.Row(
         wrap=True,

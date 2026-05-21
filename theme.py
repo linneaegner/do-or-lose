@@ -122,7 +122,6 @@ def name_field(hint: str = "Namn") -> ft.TextField:
         content_padding=ft.Padding.symmetric(horizontal=16, vertical=14),
         text_style=ft.TextStyle(color=COLOR_PRIMARY, size=16, weight=ft.FontWeight.W_500),
         cursor_color=COLOR_ACCENT,
-        autofocus=True,
     )
 
 
