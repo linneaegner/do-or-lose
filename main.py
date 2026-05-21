@@ -20,7 +20,6 @@ from models import Person
 from questions import CATEGORY_EMOJI, CATEGORY_LABELS, Category, QUESTIONS, Question, QuestionDeck
 from theme import (
     category_badge,
-    label,
     name_field,
     page_header,
     player_chip,
@@ -54,54 +53,38 @@ def main(page: ft.Page) -> None:
     txt_name.expand = True
 
     player_list = ft.Column(spacing=8, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-    players_empty = ft.Text(
-        "Inga spelare än.\nLägg till alla som ska vara med!",
-        size=16,
-        color=COLOR_MUTED,
-        text_align=ft.TextAlign.CENTER,
-    )
-    player_count = ft.Text("0 spelare", size=15, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
-    lobby_hint = ft.Text(
-        f"Lägg till minst {MIN_PLAYERS} personer för att starta.",
-        size=13,
-        color=COLOR_MUTED,
-        text_align=ft.TextAlign.CENTER,
-    )
+    lobby_status = ft.Text("", size=14, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
 
     content_width = CONTENT_WIDTH
+
+    def lobby_status_text(count: int) -> tuple[str, str]:
+        if count >= MIN_PLAYERS:
+            return f"{count} spelare", COLOR_SUCCESS
+        if count == 0:
+            return f"Minst {MIN_PLAYERS} spelare", COLOR_MUTED
+        remaining = MIN_PLAYERS - count
+        return f"{count} spelare · {remaining} till", COLOR_MUTED
 
     def rebuild_lobby() -> None:
         count = len(players)
         can_start = count >= MIN_PLAYERS
 
         player_list.controls = []
-        if players:
-            for index, person in enumerate(players):
+        for index, person in enumerate(players):
 
-                def remove_player(e: ft.ControlEvent, i: int = index) -> None:
-                    if 0 <= i < len(players):
-                        players.pop(i)
-                        rebuild_lobby()
-                        refresh()
+            def remove_player(e: ft.ControlEvent, i: int = index) -> None:
+                if 0 <= i < len(players):
+                    players.pop(i)
+                    rebuild_lobby()
+                    refresh()
 
-                player_list.controls.append(
-                    player_chip(person.get_name(), remove_player, width=content_width)
-                )
-        else:
-            player_list.controls.append(players_empty)
+            player_list.controls.append(
+                player_chip(person.get_name(), remove_player, width=content_width)
+            )
 
-        player_count.value = (
-            f"{count} spelare — redo att starta!" if can_start else f"{count} spelare ({MIN_PLAYERS - count} kvar)"
-        )
-        player_count.color = COLOR_SUCCESS if can_start else COLOR_MUTED
-
-        lobby_hint.value = (
-            "Alla är med! Tryck Starta rundan."
-            if can_start
-            else f"Lägg till minst {MIN_PLAYERS} personer."
-        )
-        lobby_hint.color = COLOR_SUCCESS if can_start else COLOR_MUTED
-
+        text, color = lobby_status_text(count)
+        lobby_status.value = text
+        lobby_status.color = color
         start_btn.disabled = not can_start
         refresh()
 
@@ -117,14 +100,14 @@ def main(page: ft.Page) -> None:
             name = (txt_name.value or name_buffer or "").strip()
 
         if not name:
-            lobby_hint.value = "Skriv ett namn först."
-            lobby_hint.color = COLOR_MUTED
+            lobby_status.value = "Skriv ett namn först."
+            lobby_status.color = COLOR_MUTED
             refresh()
             return
 
         if any(p.get_name().lower() == name.lower() for p in players):
-            lobby_hint.value = f"{name} finns redan!"
-            lobby_hint.color = COLOR_MUTED
+            lobby_status.value = f"{name} finns redan."
+            lobby_status.color = COLOR_MUTED
             refresh()
             return
 
@@ -179,23 +162,21 @@ def main(page: ft.Page) -> None:
         refresh()
 
     start_btn = primary_button("Starta rundan", start_game, disabled=True, width=CONTENT_WIDTH)
-    lobby_header = page_header("Rundan", f"{len(QUESTIONS)} kort · turordning med gänget")
+    lobby_header = page_header("Rundan", f"{len(QUESTIONS)} kort")
     lobby_surface = surface(
         ft.Row(
             [txt_name, secondary_button("Lägg till", add_player, width=110)],
             spacing=10,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         ),
-        player_count,
+        lobby_status,
         player_list,
-        lobby_hint,
     )
 
     lobby_content = ft.Column(
         [
             lobby_header,
             lobby_surface,
-            label("Kategorier", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER),
             category_row,
             start_btn,
         ],
@@ -222,28 +203,23 @@ def main(page: ft.Page) -> None:
         lobby_header.controls[0].size = 40 if wide else 34
         if len(lobby_header.controls) > 1:
             lobby_header.controls[1].size = 16 if wide else 14
-        player_count.size = 16 if wide else 15
-        lobby_hint.size = 15 if wide else 13
-        players_empty.size = 17 if wide else 16
+        lobby_status.size = 15 if wide else 14
 
-        if players:
+        if players or not player_list.controls:
             rebuild_lobby()
         refresh()
 
     # —— Game ——
     player_name = ft.Text("—", size=26, color=COLOR_PRIMARY, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER)
-    turn_badge = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
-    counter_badge = ft.Text("", size=12, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
+    game_meta = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     category_slot = ft.Container(alignment=ft.Alignment.CENTER)
-    card_hint = ft.Text("Tryck på kortet om du vill byta kort", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     card_body = prompt_card("", placeholder=True)
 
     def sync_game_header() -> None:
         person = players[turn_index % len(players)]
         player_name.value = f"{person.get_name()}s tur"
-        turn_badge.value = f"Spelare {turn_index + 1} av {len(players)}"
-        if deck:
-            counter_badge.value = f"{deck.left} kort kvar"
+        left = deck.left if deck else 0
+        game_meta.value = f"{turn_index + 1} av {len(players)} · {left} kort kvar"
 
     def show_category(question: Question | None) -> None:
         if question is None:
@@ -279,6 +255,7 @@ def main(page: ft.Page) -> None:
             return
         show_category(question)
         set_card(question.text, on_click=draw_card)
+        sync_game_header()
         next_btn.visible = True
         next_btn.disabled = False
         refresh()
@@ -309,11 +286,9 @@ def main(page: ft.Page) -> None:
                 ],
             ),
             player_name,
-            turn_badge,
-            counter_badge,
+            game_meta,
             category_slot,
             ft.Container(card_body, alignment=ft.Alignment.CENTER),
-            card_hint,
             next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
