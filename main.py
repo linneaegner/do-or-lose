@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import flet as ft
 
 from constants import (
@@ -60,12 +62,12 @@ def main(page: ft.Page) -> None:
 
     def focus_name_input() -> None:
         async def _focus() -> None:
-            txt_name.focus()
+            await txt_name.focus()
             page.update()
 
         page.run_task(_focus)
 
-    def rebuild_lobby() -> None:
+    def rebuild_lobby(*, update: bool = True) -> None:
         count = len(players)
         can_start = count >= MIN_PLAYERS
 
@@ -89,7 +91,8 @@ def main(page: ft.Page) -> None:
 
         start_btn.disabled = not can_start
         start_btn.content = "Starta rundan" if can_start else f"Starta ({count}/{MIN_PLAYERS} spelare)"
-        refresh()
+        if update:
+            refresh()
 
     def on_name_change(e: ft.ControlEvent) -> None:
         nonlocal name_buffer
@@ -115,11 +118,32 @@ def main(page: ft.Page) -> None:
         players.append(Person(name))
         txt_name.value = ""
         name_buffer = ""
-        rebuild_lobby()
-        focus_name_input()
+        rebuild_lobby(update=False)
+
+        async def _finish_add() -> None:
+            page.update()
+            await asyncio.sleep(0.05)
+            await txt_name.focus()
+            page.update()
+
+        page.run_task(_finish_add())
+
+    def on_name_blur(e: ft.ControlEvent) -> None:
+        if not page.web:
+            return
+        if not (txt_name.value or name_buffer or "").strip():
+            return
+
+        async def _maybe_add_from_blur() -> None:
+            await asyncio.sleep(0.15)
+            if (txt_name.value or name_buffer or "").strip():
+                add_player()
+
+        page.run_task(_maybe_add_from_blur())
 
     txt_name.on_change = on_name_change
     txt_name.on_submit = add_player
+    txt_name.on_blur = on_name_blur
 
     category_row = ft.Row(
         wrap=True,
