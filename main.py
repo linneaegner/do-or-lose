@@ -29,6 +29,9 @@ from theme import (
     surface,
 )
 
+CARD_SWAP_HINT = "Tryck på kortet om du vill byta kort"
+
+
 def main(page: ft.Page) -> None:
     players: list[Person] = []
     turn_index = 0
@@ -188,7 +191,6 @@ def main(page: ft.Page) -> None:
         next_btn.width = content_width
         card_body.width = min(content_width + 20, 520)
         card_body.height = 300 if wide else 280
-        card_hint.width = content_width
 
         lobby_header.controls[0].size = 40 if wide else 34
 
@@ -199,14 +201,6 @@ def main(page: ft.Page) -> None:
     player_name = ft.Text("—", size=26, color=COLOR_PRIMARY, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER)
     game_meta = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     category_slot = ft.Container(alignment=ft.Alignment.CENTER)
-    card_hint = ft.Text(
-        "Tryck på kortet om du vill byta kort",
-        size=14,
-        color=COLOR_MUTED,
-        weight=ft.FontWeight.W_500,
-        text_align=ft.TextAlign.CENTER,
-        width=CONTENT_WIDTH,
-    )
     card_body = prompt_card("", placeholder=True)
 
     def sync_game_header() -> None:
@@ -226,13 +220,29 @@ def main(page: ft.Page) -> None:
         )
 
     def set_card(text: str, *, placeholder: bool = False, on_click=None) -> None:
-        card_body.content = ft.Text(
+        card_text = ft.Text(
             text,
             size=22 if not placeholder else 18,
             color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
             weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
             text_align=ft.TextAlign.CENTER,
         )
+        if on_click is not None:
+            card_body.content = ft.Column(
+                [
+                    ft.Container(content=card_text, alignment=ft.Alignment.CENTER, expand=True),
+                    ft.Text(
+                        CARD_SWAP_HINT,
+                        size=13,
+                        color=COLOR_MUTED,
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                ],
+                spacing=8,
+                expand=True,
+            )
+        else:
+            card_body.content = card_text
         card_body.on_click = on_click
         card_body.ink = on_click is not None
 
@@ -243,7 +253,6 @@ def main(page: ft.Page) -> None:
         if question is None:
             show_category(None)
             set_card("Inga kort i valda kategorier.", placeholder=True, on_click=draw_card)
-            card_hint.visible = False
             next_btn.visible = False
             next_btn.disabled = True
             refresh()
@@ -251,7 +260,6 @@ def main(page: ft.Page) -> None:
         show_category(question)
         set_card(question.text, on_click=draw_card)
         sync_game_header()
-        card_hint.visible = True
         next_btn.visible = True
         next_btn.disabled = False
         refresh()
@@ -273,12 +281,6 @@ def main(page: ft.Page) -> None:
     next_btn = primary_button("Nästa spelare", next_player, width=CONTENT_WIDTH, disabled=True)
     next_btn.visible = False
 
-    game_footer = ft.Column(
-        [card_hint, next_btn],
-        spacing=12,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-    )
-
     game_content = ft.Column(
         [
             ft.Row(
@@ -291,7 +293,7 @@ def main(page: ft.Page) -> None:
             game_meta,
             category_slot,
             ft.Container(content=card_body, alignment=ft.Alignment.CENTER, expand=True),
-            game_footer,
+            next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=10,
