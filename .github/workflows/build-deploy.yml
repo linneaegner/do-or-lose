@@ -35,7 +35,7 @@ jobs:
             --route-url-strategy hash \
             --app-name "Rundan" \
             --app-short-name "Rundan" \
-            --app-description "Rundan — partykortspel med 100 textkort, en delad skärm" \
+            --app-description "Rundan — svenskt partykortspel på en delad skärm" \
             --distpath dist
 
       - name: Upload Pages artifact

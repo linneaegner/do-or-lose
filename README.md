@@ -4,56 +4,36 @@
 
 **Svenskt partykortspel · Python & Flet**
 
-*[▶ Spela](https://linneaegner.github.io/rundan/)* · Programming 2, GU 2023 · refaktorerat 2026
+*[▶ Spela](https://linneaegner.github.io/rundan/)*
 
 </div>
 
-Turn-based card game for friends on **one shared screen**: lobby, five categories, 100 text cards, turn order. Play in the browser — no install. Push to `main` auto-deploys to GitHub Pages (reload the page after updates).
+Turordnat partykortspel för vänner på **en delad skärm**. Lägg till spelare, välj kategorier, dra kort i turordning. Körs i webbläsaren — ingen installation.
 
 ## Spela
 
 **https://linneaegner.github.io/rundan/**
 
-Första laddning ~10–20 s. En skärm, turordning — inte online-multiplayer.
-
-## Kör lokalt
-
-Python 3.11+, Flet 0.85, pytest.
+## Lokalt
 
 ```bash
 git clone https://github.com/linneaegner/rundan.git
 cd rundan
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-flet run main.py          # desktop
-./run.sh                  # webbläsare på localhost:8550
-pip install -r requirements-dev.txt && pytest
+./run.sh    # http://127.0.0.1:8550
 ```
 
-## Kod
-
-| Fil | Roll |
-|-----|------|
-| `main.py` | UI, lobby/spel, turordning |
-| `questions.py` | 100 kort, kategorier, `QuestionDeck` |
-| `models.py` | `Person` |
-| `theme.py` / `constants.py` | UI och design tokens |
-
-Solo coursework (GU 2023). GitHub only — not on [linnea.egner.se](https://linnea.egner.se).
+Tester: `pip install -r requirements-dev.txt && pytest`
 
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/lobby-empty.png" width="300" alt="Lobby – tom" /><br/>
-  <em>Lobby – lägg till spelare och välj kategorier</em>
+  <img src="docs/screenshots/lobby-empty.png" width="300" alt="Lobby" /><br/>
+  <img src="docs/screenshots/lobby-players.png" width="300" alt="Spelare tillagda" /><br/>
+  <img src="docs/screenshots/game-turn.png" width="300" alt="Spel" />
 </p>
 
-<p align="center">
-  <img src="docs/screenshots/lobby-players.png" width="300" alt="Lobby – spelare tillagda" /><br/>
-  <em>Spelare tillagda – redo att starta</em>
-</p>
+---
 
-<p align="center">
-  <img src="docs/screenshots/game-turn.png" width="300" alt="Spel – kort" /><br/>
-  <em>Spel – turordning och kort</em>
-</p>
+Programming 2, GU 2023 · refaktorerat 2026
