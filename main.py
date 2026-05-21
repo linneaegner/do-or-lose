@@ -190,7 +190,7 @@ def main(page: ft.Page) -> None:
         start_btn.width = content_width
         next_btn.width = content_width
         card_body.width = min(content_width + 20, 520)
-        card_body.height = 300 if wide else 280
+        card_body.height = 240 if wide else 220
 
         lobby_header.controls[0].size = 40 if wide else 34
 
@@ -230,7 +230,11 @@ def main(page: ft.Page) -> None:
         if on_click is not None:
             card_body.content = ft.Column(
                 [
-                    card_text,
+                    ft.Container(
+                        content=card_text,
+                        alignment=ft.Alignment(0, -1),
+                        expand=True,
+                    ),
                     ft.Text(
                         CARD_SWAP_HINT,
                         size=13,
@@ -238,12 +242,14 @@ def main(page: ft.Page) -> None:
                         text_align=ft.TextAlign.CENTER,
                     ),
                 ],
-                spacing=16,
+                spacing=10,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                alignment=ft.MainAxisAlignment.CENTER,
+                expand=True,
             )
+            card_body.alignment = ft.Alignment(0, -1)
         else:
             card_body.content = card_text
+            card_body.alignment = ft.Alignment.CENTER
         card_body.on_click = on_click
         card_body.ink = on_click is not None
 
@@ -282,6 +288,12 @@ def main(page: ft.Page) -> None:
     next_btn = primary_button("Nästa spelare", next_player, width=CONTENT_WIDTH, disabled=True)
     next_btn.visible = False
 
+    game_header = ft.Column(
+        [player_name, game_meta, category_slot],
+        spacing=6,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+
     game_content = ft.Column(
         [
             ft.Row(
@@ -290,29 +302,36 @@ def main(page: ft.Page) -> None:
                     ft.Container(expand=True),
                 ],
             ),
-            player_name,
-            game_meta,
-            category_slot,
-            ft.Container(content=card_body, alignment=ft.Alignment.CENTER),
+            game_header,
+            card_body,
             next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=12,
+        spacing=8,
     )
 
     lobby_panel = ft.Container(content=lobby_content, width=CONTENT_WIDTH)
     game_panel = ft.Container(content=game_content, width=CONTENT_WIDTH)
 
-    def centered_row(panel: ft.Container) -> ft.Row:
+    def top_panel(panel: ft.Container) -> ft.Row:
         return ft.Row(
             [panel],
             alignment=ft.MainAxisAlignment.CENTER,
             vertical_alignment=ft.CrossAxisAlignment.START,
-            expand=True,
         )
 
-    lobby_stack = ft.Container(content=centered_row(lobby_panel), expand=True, visible=True)
-    game_stack = ft.Container(content=centered_row(game_panel), expand=True, visible=False)
+    lobby_stack = ft.Container(
+        content=top_panel(lobby_panel),
+        expand=True,
+        alignment=ft.Alignment(0, -1),
+        visible=True,
+    )
+    game_stack = ft.Container(
+        content=top_panel(game_panel),
+        expand=True,
+        alignment=ft.Alignment(0, -1),
+        visible=False,
+    )
 
     page.on_resize = lambda e: apply_layout()
 
