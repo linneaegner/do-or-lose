@@ -230,7 +230,7 @@ def main(page: ft.Page) -> None:
         if on_click is not None:
             card_body.content = ft.Column(
                 [
-                    ft.Container(content=card_text, alignment=ft.Alignment.CENTER, expand=True),
+                    card_text,
                     ft.Text(
                         CARD_SWAP_HINT,
                         size=13,
@@ -238,8 +238,9 @@ def main(page: ft.Page) -> None:
                         text_align=ft.TextAlign.CENTER,
                     ),
                 ],
-                spacing=8,
-                expand=True,
+                spacing=16,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
             )
         else:
             card_body.content = card_text
@@ -292,7 +293,8 @@ def main(page: ft.Page) -> None:
             player_name,
             game_meta,
             category_slot,
-            ft.Container(content=card_body, alignment=ft.Alignment.CENTER, expand=True),
+            ft.Container(content=card_body, alignment=ft.Alignment.CENTER),
+            ft.Container(expand=True),
             next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
