@@ -126,7 +126,7 @@ def main(page: ft.Page) -> None:
             await txt_name.focus()
             page.update()
 
-        page.run_task(_finish_add())
+        page.run_task(_finish_add)
 
     def on_name_blur(e: ft.ControlEvent) -> None:
         if not page.web:
@@ -139,7 +139,7 @@ def main(page: ft.Page) -> None:
             if (txt_name.value or name_buffer or "").strip():
                 add_player()
 
-        page.run_task(_maybe_add_from_blur())
+        page.run_task(_maybe_add_from_blur)
 
     txt_name.on_change = on_name_change
     txt_name.on_submit = add_player
