@@ -198,6 +198,12 @@ def main(page: ft.Page) -> None:
     player_name = ft.Text("—", size=26, color=COLOR_PRIMARY, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER)
     game_meta = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     category_slot = ft.Container(alignment=ft.Alignment.CENTER)
+    card_hint = ft.Text(
+        "Tryck på kortet om du vill byta kort",
+        size=13,
+        color=COLOR_MUTED,
+        text_align=ft.TextAlign.CENTER,
+    )
     card_body = prompt_card("", placeholder=True)
 
     def sync_game_header() -> None:
@@ -234,6 +240,7 @@ def main(page: ft.Page) -> None:
         if question is None:
             show_category(None)
             set_card("Inga kort i valda kategorier.", placeholder=True, on_click=draw_card)
+            card_hint.visible = False
             next_btn.visible = False
             next_btn.disabled = True
             refresh()
@@ -241,6 +248,7 @@ def main(page: ft.Page) -> None:
         show_category(question)
         set_card(question.text, on_click=draw_card)
         sync_game_header()
+        card_hint.visible = True
         next_btn.visible = True
         next_btn.disabled = False
         refresh()
@@ -274,6 +282,7 @@ def main(page: ft.Page) -> None:
             game_meta,
             category_slot,
             ft.Container(card_body, alignment=ft.Alignment.CENTER),
+            card_hint,
             next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
