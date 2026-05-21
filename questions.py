@@ -39,7 +39,7 @@ class Question:
     category: Category
 
 
-# 100 kort — blandning av sanning, utmaning, drick, rösta & vild
+# 151 kort — blandning av sanning, utmaning, drick, rösta & vild
 _QUESTION_DATA: list[tuple[Category, str]] = [
     # Sanning (1–20)
     (Category.TRUTH, "Vad var din mest pinsamma dansrörelse på en fest?"),
@@ -146,6 +146,62 @@ _QUESTION_DATA: list[tuple[Category, str]] = [
     (Category.WILD, "Ta en gruppbild som blir er officiella kvällsbild."),
     (Category.WILD, "Den som drog kortet blir spelledare nästa 3 kort."),
     (Category.WILD, "Alla skålar för något de är tacksamma för idag."),
+    # Sanning (101–110)
+    (Category.TRUTH, "Vad är det mest impulsiva köpet du gjort inför en utekväll?"),
+    (Category.TRUTH, "Vem här skulle du vilja byta liv med i en timme — och varför?"),
+    (Category.TRUTH, "Vad är din go-to ursäkt när du vill gå hem tidigt?"),
+    (Category.TRUTH, "Vilken låt får dig alltid på dansgolvet — även när du inte vill?"),
+    (Category.TRUTH, "Vad var det konstigaste du googlat efter en fest?"),
+    (Category.TRUTH, "Vem i rummet har bäst smak i kläder enligt dig?"),
+    (Category.TRUTH, "Vad är det mest pinsamma du sagt till en främling på fest?"),
+    (Category.TRUTH, "Vilken superkraft skulle göra dig farligast på en utekväll?"),
+    (Category.TRUTH, "Vad skulle ditt dröm-afterparty innehålla?"),
+    (Category.TRUTH, "Vem här tror du gömmer sin bästa dans bakom att 'inte dansa'?"),
+    # Utmaning (111–120)
+    (Category.DARE, "Visa din bästa modellpose i 10 sekunder."),
+    (Category.DARE, "Låt någon välja din profilbild på valfri app i 5 minuter."),
+    (Category.DARE, "Berätta en historia om dig själv — minst en detalj måste vara påhittad."),
+    (Category.DARE, "Gör en handstand mot väggen eller ta en klunk."),
+    (Category.DARE, "Skicka ett random emoji till sista personen du messade med."),
+    (Category.DARE, "Håll en 20-sekunders monolog om varför kvällen blir legendarisk."),
+    (Category.DARE, "Byt plats och sitt som någon annan i 1 runda."),
+    (Category.DARE, "Visa din bästa robot-dans i 15 sekunder."),
+    (Category.DARE, "Låt gruppen välja en emoji som du måste gestikulera i 30 sek."),
+    (Category.DARE, "Ring din mamma eller bästa kompis och säg att du älskar dem — på högtalare."),
+    (Category.DARE, "Gör en dramatisk avslutning på en påhittad film om er kväll."),
+    # Drick (121–130)
+    (Category.DRINK, "Alla som har bytt outfit minst en gång ikväll — ta en klunk."),
+    (Category.DRINK, "Den som har flest följare — välj vem som dricker med dig."),
+    (Category.DRINK, "Om du har en jacka på dig inomhus — ta en klunk."),
+    (Category.DRINK, "Skål för den som planerade kvällen!"),
+    (Category.DRINK, "Den som har minst batteri på telefonen — ta en klunk."),
+    (Category.DRINK, "Alla som dricker bubbel — ta en extra klunk."),
+    (Category.DRINK, "Om du redan bestämt var ni ska gå — ta en klunk."),
+    (Category.DRINK, "Den som log senast — ge bort en klunk till någon."),
+    (Category.DRINK, "Alla som har en piercing — ta en klunk."),
+    (Category.DRINK, "Skål för den som kom först ikväll!"),
+    # Rösta (131–140)
+    (Category.VOTE, "Rösta: vem har bäst danssteg?"),
+    (Category.VOTE, "Rösta: vem är mest trolig att bli känd?"),
+    (Category.VOTE, "Rösta: vem har bäst stories-game?"),
+    (Category.VOTE, "Rösta: vem skulle du vilja ha som roomie?"),
+    (Category.VOTE, "Rösta: vem är mest trolig att vinna i beer pong?"),
+    (Category.VOTE, "Rösta: vem har bäst glow-up sedan ni träffades?"),
+    (Category.VOTE, "Rösta: vem är mest trolig att hamna i en viral TikTok?"),
+    (Category.VOTE, "Rösta: vem ger bäst råd om kärlek?"),
+    (Category.VOTE, "Rösta: vem är mest trolig att glömma betala sin drink?"),
+    (Category.VOTE, "Rösta: vem har bäst 'vibe check'-energi?"),
+    # Vild (141–150)
+    (Category.WILD, "Alla står upp och gör sin signatur-rörelse — samtidigt."),
+    (Category.WILD, "Skapa en hemlig signal som betyder 'rädda mig' resten av kvällen."),
+    (Category.WILD, "Gruppen väljer ett nytt smeknamn för den som drog kortet."),
+    (Category.WILD, "Alla byter telefonbakgrund till samma bild i 10 minuter."),
+    (Category.WILD, "Starta en countdown — alla ska vara redo att gå om 5 minuter."),
+    (Category.WILD, "Den som drog kortet får ställa en ja/nej-fråga till hela gruppen."),
+    (Category.WILD, "Alla skriver en emoji som beskriver kvällen hittills — visa samtidigt."),
+    (Category.WILD, "Skapa en lagordning: vem går först, sist och i mitten ut ikväll."),
+    (Category.WILD, "Gruppen får 30 sek att hitta på er egen dans — visa den direkt."),
+    (Category.WILD, "Alla skålar för något de hoppas händer innan natten är slut."),
 ]
 
 QUESTIONS: list[Question] = [

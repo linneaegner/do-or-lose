@@ -17,7 +17,7 @@ from constants import (
     WINDOW_WIDTH,
 )
 from models import Person
-from questions import CATEGORY_EMOJI, CATEGORY_LABELS, Category, Question, QuestionDeck
+from questions import CATEGORY_EMOJI, CATEGORY_LABELS, Category, QUESTIONS, Question, QuestionDeck
 from theme import (
     category_badge,
     label,
@@ -31,7 +31,7 @@ from theme import (
     surface,
 )
 
-CARD_PLACEHOLDER = "Tryck här för nästa kort"
+CARD_PLACEHOLDER = "Tryck på kortet för att dra"
 
 
 def main(page: ft.Page) -> None:
@@ -182,7 +182,7 @@ def main(page: ft.Page) -> None:
         refresh()
 
     start_btn = primary_button("Starta rundan", start_game, disabled=True, width=CONTENT_WIDTH)
-    lobby_header = page_header("Rundan", "100 kort · turordning med gänget")
+    lobby_header = page_header("Rundan", f"{len(QUESTIONS)} kort · turordning med gänget")
     lobby_surface = surface(
         ft.Row(
             [txt_name, secondary_button("Lägg till", add_player, width=110)],
@@ -218,6 +218,7 @@ def main(page: ft.Page) -> None:
         player_list.width = content_width
         category_row.width = content_width
         start_btn.width = content_width
+        next_btn.width = content_width
         card_body.width = min(content_width + 20, 520)
         card_body.height = 300 if wide else 280
 
@@ -236,8 +237,9 @@ def main(page: ft.Page) -> None:
     player_name = ft.Text("—", size=26, color=COLOR_PRIMARY, weight=ft.FontWeight.W_700, text_align=ft.TextAlign.CENTER)
     turn_badge = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     counter_badge = ft.Text("", size=12, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
-    category_slot = ft.Container()
+    card_hint = ft.Text("", size=13, color=COLOR_MUTED, text_align=ft.TextAlign.CENTER)
     card_body = prompt_card(CARD_PLACEHOLDER, placeholder=True)
+    card_drawn = False
 
     def sync_game_header() -> None:
         person = players[turn_index % len(players)]
@@ -246,37 +248,90 @@ def main(page: ft.Page) -> None:
         if deck:
             counter_badge.value = f"{deck.left} kort kvar"
 
-    def set_card(text: str, *, placeholder: bool = False, on_click=None) -> None:
-        card_body.content = ft.Text(
-            text,
-            size=22 if not placeholder else 18,
-            color=COLOR_PRIMARY if not placeholder else COLOR_MUTED,
-            weight=ft.FontWeight.W_600 if not placeholder else ft.FontWeight.W_500,
-            text_align=ft.TextAlign.CENTER,
-        )
+    def set_card(
+        text: str,
+        *,
+        placeholder: bool = False,
+        on_click=None,
+        question: Question | None = None,
+    ) -> None:
+        if placeholder:
+            card_body.content = ft.Text(
+                text,
+                size=18,
+                color=COLOR_MUTED,
+                weight=ft.FontWeight.W_500,
+                text_align=ft.TextAlign.CENTER,
+            )
+        else:
+            badge = category_badge(
+                question.category.value,
+                CATEGORY_EMOJI[question.category],
+                CATEGORY_LABELS[question.category],
+            ) if question else None
+            card_body.content = ft.Column(
+                [
+                    badge,
+                    ft.Text(
+                        text,
+                        size=22,
+                        color=COLOR_PRIMARY,
+                        weight=ft.FontWeight.W_600,
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                ]
+                if badge
+                else [
+                    ft.Text(
+                        text,
+                        size=22,
+                        color=COLOR_PRIMARY,
+                        weight=ft.FontWeight.W_600,
+                        text_align=ft.TextAlign.CENTER,
+                    )
+                ],
+                spacing=16,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+            )
         card_body.on_click = on_click
         card_body.ink = on_click is not None
 
+    def sync_card_hint() -> None:
+        if card_drawn:
+            card_hint.value = "Tryck på kortet igen om du vill byta kort"
+        else:
+            card_hint.value = "Tryck på kortet för att dra"
+
+    def sync_next_button() -> None:
+        next_btn.visible = card_drawn
+        next_btn.disabled = not card_drawn
+
     def draw_card(e: ft.ControlEvent | None = None) -> None:
+        nonlocal card_drawn
         if deck is None:
             return
         question = deck.draw()
         if question is None:
+            card_drawn = False
             set_card("Inga kort i valda kategorier.", placeholder=True, on_click=draw_card)
+            sync_card_hint()
+            sync_next_button()
             refresh()
             return
-        category_slot.content = category_badge(
-            question.category.value,
-            CATEGORY_EMOJI[question.category],
-            CATEGORY_LABELS[question.category],
-        )
-        set_card(question.text)
+        card_drawn = True
+        set_card(question.text, question=question, on_click=draw_card)
+        sync_card_hint()
+        sync_next_button()
         refresh()
 
     def begin_turn() -> None:
+        nonlocal card_drawn
+        card_drawn = False
         sync_game_header()
-        category_slot.content = ft.Container()
         set_card(CARD_PLACEHOLDER, placeholder=True, on_click=draw_card)
+        sync_card_hint()
+        sync_next_button()
         refresh()
 
     def next_player(e: ft.ControlEvent) -> None:
@@ -289,6 +344,9 @@ def main(page: ft.Page) -> None:
         lobby_stack.visible = True
         rebuild_lobby()
 
+    next_btn = primary_button("Nästa spelare", next_player, width=CONTENT_WIDTH, disabled=True)
+    next_btn.visible = False
+
     game_content = ft.Column(
         [
             ft.Row(
@@ -300,17 +358,9 @@ def main(page: ft.Page) -> None:
             player_name,
             turn_badge,
             counter_badge,
-            category_slot,
             ft.Container(card_body, alignment=ft.Alignment.CENTER),
-            ft.Row(
-                [
-                    secondary_button("Nytt kort", draw_card, width=150),
-                    primary_button("Nästa", next_player, width=150),
-                ],
-                spacing=10,
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            primary_button("Dra kort", draw_card, width=320),
+            card_hint,
+            next_btn,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=10,
